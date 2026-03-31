@@ -132,7 +132,7 @@ Contributions are welcome! Feel free to fork the repository and submit pull requ
 
 ## 👨‍💻 Author
 
-Developed by *[Dev dangi]*
+Developed by Dev dangi
 Feel free to connect and collaborate!
 
 ---
