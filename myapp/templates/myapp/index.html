@@ -1,0 +1,19 @@
+{% extends 'myapp/base.html' %}
+{% block body %}
+<div>
+    <h1 class="text-2xl px-32 pt-10" >Today deal</h1>
+    <div class="px-32">
+        <hr class="border-t border-gray-500 my-4"/>
+    </div>
+    <div class="grid grid-cols-4 px-10 gap-2">
+        {% for product in products %}
+        <div class="ronded-lg shadow-lg px-2 pt-3">
+            <img class="rounded-md mb-8 mx-auto" src="{{ product.image.url }}" alt="{{ product.name }}">
+            <a class="text-lg font-semibold bg-blue-500 text-white py-2 px-4 rounded" href="">{{ product.name }}</a>
+            <p class="text-gray-600">{{ product.description }}</p>
+            <p class="text-green-500 font-bold mt-2 text-lg">${{ product.price }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
