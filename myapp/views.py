@@ -8,3 +8,4 @@ def index(request):
 def detail(request, slug):
     product = Products.objects.get(slug=slug)
     return render(request,'myapp/detail.html',{'product':product})
+

@@ -9,7 +9,7 @@
         {% for product in products %}
         <div class="ronded-lg shadow-lg px-2 pt-3">
             <img class="rounded-md mb-8 mx-auto" src="{{ product.image.url }}" alt="{{ product.name }}">
-            <a class="text-lg font-semibold bg-blue-500 text-white py-2 px-4 rounded" href="">{{ product.name }}</a>
+            <a class="text-lg font-semibold bg-blue-500 text-white py-2 px-4 rounded" href="{{ product.get_absolute_url }}">{{ product.name }}</a>
             <p class="text-gray-600">{{ product.description }}</p>
             <p class="text-green-500 font-bold mt-2 text-lg">${{ product.price }}</p>
         </div>

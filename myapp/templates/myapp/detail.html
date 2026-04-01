@@ -1,2 +1,51 @@
 {% extends 'myapp/base.html' %}
-{}deactivate
+{% block body %}
+<div class="flex gap-8">
+    <div class="w-80 h-80">
+        <img class="w-80 h-80" src="{{product.image.url}}" alt="">
+    </div>
+    <div class="flex flex-col gap-4">
+        <h1 class="text-2xl font-bold text-gray-800">{{product.name}}</h1>
+        <div class="text-lg font-semibold text-yellow-500">*****<span class="text-gray-500">(12,321 ratings)</span></div>
+        <p class="text-3xl font-bold text-green-800">${{product.price|floatformat:2}}</p>
+        <p class="text-sm text-green-400">Inclusive of all taxes</p>
+        <ul class="list-disc list-inside">
+            <li class="text-gray-700">{{product.description}}</li>
+        </ul>
+    </div>
+    <div class="flex flex-col gap-4 p-4 border border-gray-300 rounded col-span-4 rounded-lg space-y-4 h-80">
+            <p class="text-xl font-bold text-gray-800">${{product.price|floatformat:2}}</p>
+            <div class="flex items-center gap-2">
+                <p>Qty:</p>
+            <select class="border border-gray-300 rounded" name="quantity" id="">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+            </select>
+            </div>
+            <p class="text-sm text-black-600">free delivery tommorow</p>
+            {% if product.stock > 0 %}
+        <p class="text-green-500 font-semibold">in stock</p>
+            {% else %}
+        <p class="text-red-500 font-semibold">out of stock</p>
+            {% endif %}
+        <button
+        id="atc"
+        class="bg-yellow-400 px-4 py-2 rounded w-full">Add to cart</button>
+        <button class="bg-black text-white font-semibold px-4 py-2 rounded w-full">Buy now</button>
+        <p class="text-md text-bgreen-600">Provided by the Seller</p>
+    </div>
+</div>
+<script>
+    $(document).on('click','#atc',function(e){
+        console.log('Added to cart');
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'cart_add' %}",
+            data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            }
+        });
+    });
+</script>
+{% endblock %}
