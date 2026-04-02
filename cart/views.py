@@ -4,6 +4,8 @@ from django.http import JsonResponse
 # Create your views here.
 def cart_add(request):
     if request.method == 'POST':
-        # Return a non-dict JSON object (list) and allow it with safe=False
-        return JsonResponse(['product added in cart'], safe=False)
+        product_id = request.POST.get("product_id")
+        product_quantity = request.POST.get("product_quantity")
+        print("product to the cart has an id",product_id)
+        print("product has the quantity",product_quantity)
     return JsonResponse({'error': 'Method not allowed'}, status=405)

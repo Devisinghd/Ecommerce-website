@@ -17,7 +17,7 @@
             <p class="text-xl font-bold text-gray-800">${{product.price|floatformat:2}}</p>
             <div class="flex items-center gap-2">
                 <p>Qty:</p>
-            <select class="border border-gray-300 rounded" name="quantity" id="">
+            <select class="border border-gray-300 rounded" name="quantity" id="select">
                 <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
@@ -31,6 +31,7 @@
             {% endif %}
         <button
         id="atc"
+        value="{{product.id}}"
         class="bg-yellow-400 px-4 py-2 rounded w-full">Add to cart</button>
         <button class="bg-black text-white font-semibold px-4 py-2 rounded w-full">Buy now</button>
         <p class="text-md text-bgreen-600">Provided by the Seller</p>
@@ -43,7 +44,9 @@
             type: 'POST',
             url: "{% url 'cart_add' %}",
             data: {
-                csrfmiddlewaretoken: '{{ csrf_token }}'
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                product_id: $("#atc").val(),
+                product_quantity: $("#select option:selected").text(),
             }
         });
     });
