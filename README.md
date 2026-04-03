@@ -1,7 +1,7 @@
 <h1># Ecommerce-website<h1/>
 # 🛒 Django E-Commerce Web Application
 
-A full-stack e-commerce web application built using **Django** that enables users to browse products, manage carts, and perform CRUD operations efficiently. The project follows clean architecture principles and is designed to be scalable, maintainable, and developer-friendly.
+<h2>A full-stack e-commerce web application built using **Django** that enables users to browse products, manage carts, and perform CRUD operations efficiently. The project follows clean architecture principles and is designed to be scalable, maintainable, and developer-friendly.<h2/>
 
 ---
 
