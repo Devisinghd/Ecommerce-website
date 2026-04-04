@@ -6,4 +6,15 @@ class Cart():
             cart = self.session['cart']={}
         self.cart = cart
 
+    def __len__(self):
+        return sum(int(item['qty']) for item in self.cart.values())
 
+    def add(self, product, product_qty):
+        product_id = str(product.id)
+        if product_id in self.cart:
+            self.cart[product_id]['qty'] += product_qty
+        else:
+            self.cart[product_id] = {'price': product.price, 'qty': product_qty}
+        self.session.modified = True
+
+    

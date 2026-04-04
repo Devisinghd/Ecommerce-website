@@ -47,6 +47,10 @@
                 csrfmiddlewaretoken: '{{ csrf_token }}',
                 product_id: $("#atc").val(),
                 product_quantity: $("#select option:selected").text(),
+            },
+            success: function(json) {
+                console.log(json);
+                document.getElementById('cart-qty').textContent = json.cart_quantity;
             }
         });
     });
