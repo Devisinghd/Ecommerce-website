@@ -21,7 +21,7 @@
 
 * **Backend:** Django, Python
 * **Database:** SQLite (Development)
-* **Frontend:** HTML, CSS (Django Templates)
+* **Frontend:** HTML, Tailwind(Django Templates)
 * **Version Control:** Git & GitHub
 
 ---
