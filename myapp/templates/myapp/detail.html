@@ -42,8 +42,7 @@
         console.log('Added to cart');
         $.ajax({
             type: 'POST',
-            url: "{% url 'cart_add' %}",
-            data: {
+            url: '{% url "cart_add" %}',            data: {
                 csrfmiddlewaretoken: '{{ csrf_token }}',
                 product_id: $("#atc").val(),
                 product_quantity: $("#select option:selected").text(),
