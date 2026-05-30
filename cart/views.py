@@ -24,3 +24,7 @@ def cart_add(request):
     cart.add(product=product, product_qty=product_quantity)
     cart_quantity = cart.__len__()
     return JsonResponse({'success': True, 'cart': cart.cart, 'cart_quantity': cart_quantity})
+
+def cart_overview(request):
+    cart = Cart(request)
+    return render(request,'cart/cart-overview.html',{'cart':cart})
