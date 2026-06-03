@@ -12,6 +12,9 @@ class Cart():
     def __len__(self):
         return sum(int(item['qty']) for item in self.cart.values())
     
+    def get_total_price(self):
+        return sum(Decimal(item['price']) * Decimal(item['qty']) for item in self.cart.values())
+    
     def __iter__(self):
         product_ids = self.cart.keys()
         products = Products.objects.filter(id__in=product_ids)
@@ -39,5 +42,19 @@ class Cart():
         else:
             self.cart[product_id] = {'price': str(product.price), 'qty': product_qty}
         self.session.modified = True
+
+    def delete(self,product_id):
+        product_id = str(product_id)
+        if product_id in self.cart:
+            del self.cart[product_id]
+        self.session.modified=True
+
+    def update(self, product, product_qty):
+        product_id = str(product)
+        product_quantity = product_qty
+        if product_id in self.cart:
+            self.cart[product_id]['qty'] = product_quantity
+        self.session.modified = True
+    
 
     
