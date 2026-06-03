@@ -1,0 +1,9 @@
+<h1>
+    this is profile page
+</h1>
+<form method="POST">
+    {% csrf_token %}
+    <!-- Add profile update fields here -->
+     {{ user_form.as_p }}
+    <button type="submit">Update Profile</button>
+</form>
