@@ -1,0 +1,25 @@
+{% extends 'myapp/base.html' %}
+
+{% block body %}
+<div class="min-h-screen bg-slate-50 px-4 py-10">
+  <div class="mx-auto max-w-2xl rounded-[28px] bg-white p-8 shadow-xl shadow-slate-200/70 sm:p-10">
+    <div class="text-center">
+      <span class="inline-flex items-center rounded-full bg-rose-100 px-4 py-2 text-sm font-semibold text-rose-700">Confirm logout</span>
+      <h1 class="mt-6 text-4xl font-semibold text-slate-900">Are you sure you want to log out?</h1>
+      <p class="mx-auto mt-4 max-w-xl text-base leading-7 text-slate-600">You can log back in anytime. If you stay signed out, your cart and preferences will remain saved.</p>
+    </div>
+
+    <div class="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center">
+      <form method="POST" class="sm:inline-flex sm:w-auto">
+        {% csrf_token %}
+        <a href="{% url 'login' %}" class="inline-flex w-full items-center justify-center rounded-2xl bg-rose-600 px-6 py-3 text-base font-semibold text-white shadow-lg shadow-rose-500/20 transition hover:bg-rose-700">
+          Yes, log me out
+        </a>
+      </form>
+      <a href="/" class="inline-flex w-full items-center justify-center rounded-2xl border border-slate-200 bg-white px-6 py-3 text-base font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 sm:w-auto">
+        No, take me back
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
