@@ -28,3 +28,24 @@ def cart_add(request):
 def cart_overview(request):
     cart = Cart(request)
     return render(request,'cart/cart-overview.html',{'cart':cart})
+
+def cart_delete(request):
+    cart = Cart(request)
+    if request.method == 'POST' and request.POST.get('product_id'):
+        product_id = request.POST.get('product_id')
+        cart.delete(product_id=product_id)
+        cart_quantity = cart.__len__()
+        cart_total = cart.get_total_price()
+        return JsonResponse({'message':'item delete', 'cart_quantity': cart_quantity,'total':cart_total})
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+def cart_update(request):
+    cart = Cart(request)
+    if request.method == 'POST':
+        product_id = request.POST.get('product_id')
+        product_quantity = request.POST.get('product_quantity')
+        
+        cart.update(product=product_id, product_qty=product_quantity)
+        cart_quantity = cart.__len__()
+        cart_total = cart.get_total_price()
+        return JsonResponse({'message':'item updated', 'cart_quantity': cart_quantity,'total':cart_total})
