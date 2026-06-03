@@ -128,4 +128,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Email settings
+# In development (DEBUG=True) use the console backend so emails are printed
+# to the terminal instead of being sent over the network. In production,
+# configure SMTP credentials and set DEBUG=False.
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = '587'
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'devm16410@gmail.com'
+EMAIL_HOST_PASSWORD = "jshejbwupzkpocuc"
