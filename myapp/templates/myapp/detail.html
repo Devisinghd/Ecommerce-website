@@ -1,51 +1,64 @@
 {% extends 'myapp/base.html' %}
+{% block title %}{{ product.name }} · ShopMate{% endblock %}
 {% block body %}
-<div class="flex gap-8">
-    <div class="w-80 h-80">
-        <img class="w-80 h-80" src="{{product.image.url}}" alt="">
+<div class="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+  <div class="grid gap-10 lg:grid-cols-3">
+    <div class="lg:col-span-2 rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/50">
+      <div class="overflow-hidden rounded-[24px] bg-slate-100">
+        <img class="w-full max-h-[520px] object-cover" src="{{ product.image.url }}" alt="{{ product.name }}" />
+      </div>
+      <div class="mt-6 space-y-4">
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <h1 class="text-4xl font-semibold text-slate-900">{{ product.name }}</h1>
+            <p class="mt-2 text-sm text-slate-500">Trusted seller · Free delivery available</p>
+          </div>
+          <span class="rounded-full bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-700">In stock</span>
+        </div>
+        <div class="space-y-2 rounded-3xl bg-slate-50 p-5">
+          <p class="text-lg font-semibold text-slate-900">Product description</p>
+          <p class="text-slate-600 leading-7">{{ product.description }}</p>
+        </div>
+      </div>
     </div>
-    <div class="flex flex-col gap-4">
-        <h1 class="text-2xl font-bold text-gray-800">{{product.name}}</h1>
-        <div class="text-lg font-semibold text-yellow-500">*****<span class="text-gray-500">(12,321 ratings)</span></div>
-        <p class="text-3xl font-bold text-green-800">${{product.price|floatformat:2}}</p>
-        <p class="text-sm text-green-400">Inclusive of all taxes</p>
-        <ul class="list-disc list-inside">
-            <li class="text-gray-700">{{product.description}}</li>
-        </ul>
-    </div>
-    <div class="flex flex-col gap-4 p-4 border border-gray-300 rounded col-span-4 rounded-lg space-y-4 h-80">
-            <p class="text-xl font-bold text-gray-800">${{product.price|floatformat:2}}</p>
-            <div class="flex items-center gap-2">
-                <p>Qty:</p>
-            <select class="border border-gray-300 rounded" name="quantity" id="select">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-            </select>
-            </div>
-            <p class="text-sm text-black-600">free delivery tommorow</p>
-            {% if product.stock > 0 %}
-        <p class="text-green-500 font-semibold">in stock</p>
-            {% else %}
-        <p class="text-red-500 font-semibold">out of stock</p>
-            {% endif %}
-        <button
-        id="atc"
-        value="{{product.id}}"
-        class="bg-yellow-400 px-4 py-2 rounded w-full">Add to cart</button>
-        <button class="bg-black text-white font-semibold px-4 py-2 rounded w-full">Buy now</button>
-        <p class="text-md text-bgreen-600">Provided by the Seller</p>
-    </div>
+
+    <aside class="space-y-6 rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/50">
+      <div class="space-y-4">
+        <p class="text-sm uppercase tracking-[0.3em] text-blue-600">Price</p>
+        <p class="text-4xl font-semibold text-slate-900">₹{{ product.price|floatformat:2 }}</p>
+        <p class="text-sm text-slate-500">Inclusive of all taxes</p>
+      </div>
+
+      <div class="space-y-4 rounded-3xl bg-slate-50 p-5">
+        <label class="block text-sm font-medium text-slate-700">Quantity</label>
+        <select class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200" name="quantity" id="select">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+        </select>
+      </div>
+
+      <div class="space-y-3">
+        <button id="atc" value="{{ product.id }}" class="w-full rounded-2xl bg-blue-600 px-5 py-3 text-base font-semibold text-white transition hover:bg-blue-700">Add to cart</button>
+        <button class="w-full rounded-2xl border border-slate-300 bg-white px-5 py-3 text-base font-semibold text-slate-900 transition hover:bg-slate-100">Buy now</button>
+      </div>
+    </aside>
+  </div>
 </div>
+
+{% endblock %}
+{% block scripts %}
 <script>
     $(document).on('click','#atc',function(e){
-        console.log('Added to cart');
+        e.preventDefault();
+        const csrftoken = '{{ csrf_token }}';
         $.ajax({
             type: 'POST',
-            url: '{% url "cart:cart_add" %}',            data: {
-                csrfmiddlewaretoken: '{{ csrf_token }}',
-                product_id: $("#atc").val(),
-                product_quantity: $("#select option:selected").text(),
+            url: '{% url "cart:cart_add" %}',
+            data: {
+                csrfmiddlewaretoken: csrftoken,
+                product_id: $(this).val(),
+                product_quantity: $('#select').val(),
             },
             success: function(json) {
                 console.log(json);
