@@ -79,7 +79,7 @@ def user_logout(request):
 
 
 def profile(request):
-    
+
     if request.method == 'POST':
         user_form = UserUpdateForm(request.POST,instance=request.user)
         if user_form.is_valid():
@@ -89,3 +89,6 @@ def profile(request):
     user_form = UserUpdateForm(instance=request.user)
 
     return render(request,'users/profile.html',{'user_form':user_form})
+
+def profile_view(request):
+    return render(request,'users/profile-view.html')
