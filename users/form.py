@@ -17,6 +17,14 @@ class CreateUserForm(UserCreationForm):
 class LoginForm(AuthenticationForm):
     username = forms.CharField(widget=forms.TextInput())
     password = forms.CharField(widget=forms.PasswordInput())
+
+    def __init__(self, *args, **kwargs):
+        super(LoginForm, self).__init__(*args, **kwargs)
+        widget_attrs = {
+            'class': 'w-full rounded-lg border border-slate-200 px-3 py-2 text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200',
+        }
+        for field in self.fields.values():
+            field.widget.attrs.update(widget_attrs)
             
 
 
