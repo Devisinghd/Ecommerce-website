@@ -1,20 +1,26 @@
 from django.db import models
 from django.utils.text import slugify
 from django.urls import reverse
-# Create your models h
+from .managers import ProductsManager
+# Create your models here
 class Products(models.Model):
+    class Meta:
+        indexes = [
+            models.Index(fields=['name','price'])
+        ]
 
     def get_absolute_url(self):
         return reverse('detail',args=[self.slug])
     
-    name = models.CharField(max_length=100)
-    price = models.FloatField()
+    name = models.CharField(max_length=100,db_index=True)
+    price = models.FloatField(db_index=True)
     description = models.TextField()
     image = models.ImageField(upload_to='images/')
     slug = models.SlugField(unique=True,blank=True)
     stock = models.IntegerField()
     active = models.BooleanField()
 
+    objects = ProductsManager()
 
     def save(self,*args, **kwargs):
         if not self.slug:
