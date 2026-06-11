@@ -9,6 +9,10 @@ class Products(models.Model):
             models.Index(fields=['name','price'])
         ]
 
+
+    def __str__(self):
+        return self.name
+
     def get_absolute_url(self):
         return reverse('detail',args=[self.slug])
     
