@@ -1,0 +1,16 @@
+{% extends 'myapp/base.html' %}
+
+{% block body %}
+<h1>this is seller page where seller can see their products</h1>
+<a href="{% url 'seller-product-create' %}">create product</a>
+<ul>
+    {% for item in page_obj %}
+        <li>{{ item.name }} - {{ item.price }}
+            {{ item.description }}
+            <img src="{{ item.image.url }}" alt="{{ item.name }}">
+            {{ item.stock}}
+            <a href="{% url 'seller-product-detail' item.slug %}">View Product</a>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}
