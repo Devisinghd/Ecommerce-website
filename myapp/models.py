@@ -2,6 +2,7 @@ from django.db import models
 from django.utils.text import slugify
 from django.urls import reverse
 from .managers import ProductsManager
+from django.contrib.auth.models import User
 # Create your models here
 class Products(models.Model):
     class Meta:
@@ -16,6 +17,7 @@ class Products(models.Model):
     def get_absolute_url(self):
         return reverse('detail',args=[self.slug])
     
+    seller = models.ForeignKey(User, on_delete=models.CASCADE,related_name='product')
     name = models.CharField(max_length=100,db_index=True)
     price = models.FloatField(db_index=True)
     description = models.TextField()
