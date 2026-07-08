@@ -4,7 +4,7 @@ from myapp.models import Products
 class ProductCreateForm(forms.ModelForm):
     class Meta:
         model = Products
-        fields = ['name','price','description','image','stock','active']
+        fields = ['name','price','description','image','stock']
 
 
     def cleen_price(self):

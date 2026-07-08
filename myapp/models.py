@@ -3,6 +3,7 @@ from django.utils.text import slugify
 from django.urls import reverse
 from .managers import ProductsManager
 from django.contrib.auth.models import User
+from django.utils import timezone
 # Create your models here
 class Products(models.Model):
     class Meta:
@@ -17,6 +18,11 @@ class Products(models.Model):
     def get_absolute_url(self):
         return reverse('detail',args=[self.slug])
     
+    def delete(self,using=None,keep_parents=False):
+        self.is_deleted = True
+        self.deleted_at = timezone.now()
+        self.save(using=using, update_fields=['is_deleted', 'deleted_at'])
+
     seller = models.ForeignKey(User, on_delete=models.CASCADE,related_name='product')
     name = models.CharField(max_length=100,db_index=True)
     price = models.FloatField(db_index=True)
@@ -24,9 +30,13 @@ class Products(models.Model):
     image = models.ImageField(upload_to='images/')
     slug = models.SlugField(unique=True,blank=True)
     stock = models.IntegerField()
-    active = models.BooleanField()
+    active = models.BooleanField(default=True)
+
+    is_deleted = models.BooleanField(default=False)
+    deleted_at = models.DateTimeField(null=True,blank=True)
 
     objects = ProductsManager()
+    all_objects = models.Manager()
 
     def save(self,*args, **kwargs):
         if not self.slug:

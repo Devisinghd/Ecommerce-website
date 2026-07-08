@@ -1,9 +1,8 @@
 from django.db import models
 
 class ProductsManager(models.Manager):
-    def cheap_products(self):
-        return self.filter(price__lt=5)
-    def expensive_products(self):
-        return self.filter(price__gt=5)
-    def search(self,keyword):
-        return self.filter(name__icontains=keyword)
+    def get_queryset(self):
+        return super().get_queryset().filter(is_deleted=False)
+    
+    def deleted(self):
+        return super().get_queryset().filter(is_deleted=False)

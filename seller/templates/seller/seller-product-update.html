@@ -1,12 +1,12 @@
 {% extends 'myapp/base.html' %}
 
-{% block title %}Create Product · ShopMate{% endblock %}
+{% block title %}Update Product · ShopMate{% endblock %}
 {% block body %}
 <div class="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
   <div class="rounded-[32px] border border-slate-200 bg-white p-8 shadow-sm shadow-slate-200/50">
     <div class="mb-8">
-      <p class="text-sm font-semibold uppercase tracking-[0.3em] text-blue-600">Create listing</p>
-      <h1 class="mt-2 text-3xl font-semibold text-slate-900">Add a new product</h1>
+      <p class="text-sm font-semibold uppercase tracking-[0.3em] text-blue-600">Edit listing</p>
+      <h1 class="mt-2 text-3xl font-semibold text-slate-900">Update your product</h1>
     </div>
     <form action="" method="post" enctype="multipart/form-data" class="space-y-6">
       {% csrf_token %}
@@ -19,7 +19,7 @@
         {% endfor %}
       </div>
       {% endfor %}
-      <button type="submit" class="w-full rounded-2xl bg-blue-600 px-5 py-3 text-base font-semibold text-white transition hover:bg-blue-700">Create Product</button>
+      <button type="submit" class="w-full rounded-2xl bg-blue-600 px-5 py-3 text-base font-semibold text-white transition hover:bg-blue-700">Update Product</button>
     </form>
   </div>
 </div>

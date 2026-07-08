@@ -11,6 +11,8 @@ from django.contrib.auth import authenticate,login,logout
 # Create your views here.
 
 def register(request):
+    if request.user.is_authenticated:
+        return redirect('myapp/index')
     form = CreateUserForm()
     if request.method == 'POST':
         form = CreateUserForm(request.POST or None)
