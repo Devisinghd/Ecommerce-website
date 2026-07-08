@@ -5,13 +5,16 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
 # Create your views here.
-
+@login_required
 def seller_dashboard(request):
-    product = Products.objects.filter(seller=request.user)
-    paginator = Paginator(product,7)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    return render(request,'seller/seller-dashboard.html',{'page_obj':page_obj})
+    try:
+        product = Products.objects.filter(seller=request.user)
+        paginator = Paginator(product,7)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        return render(request,'seller/seller-dashboard.html',{'page_obj':page_obj})
+    except Products.DoesNotExist:
+        return redirect('login')
 
 def product_detail(request, slug):
     product = Products.objects.get(slug=slug)

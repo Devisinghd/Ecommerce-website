@@ -8,11 +8,13 @@ from .token import account_activation_token
 from django.contrib.auth.models import User
 from .form import LoginForm
 from django.contrib.auth import authenticate,login,logout
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
 # Create your views here.
 
 def register(request):
     if request.user.is_authenticated:
-        return redirect('myapp/index')
+        return redirect('index')
     form = CreateUserForm()
     if request.method == 'POST':
         form = CreateUserForm(request.POST or None)
@@ -62,16 +64,13 @@ def email_verification_failed(request):
     return render(request,'users/email-verification-failed.html')
 
 def user_login(request):
-    form = LoginForm()
     if request.method == 'POST':
         form = LoginForm(request, data=request.POST)
         if form.is_valid():
-            username = request.POST.get('username')
-            password = request.POST.get('password')
-            user = authenticate(request, username=username, password=password)
-            if user is not None:
-                login(request, user)
-                return redirect('index')
+            login(request, form.get_user())
+            return redirect('index')
+    else:
+        form = LoginForm()
     return render(request, 'users/login.html', {'form': form})
 
 
@@ -80,17 +79,19 @@ def user_logout(request):
     return render(request,'users/logout-confirmation.html')
 
 
+@login_required
 def profile(request):
-
     if request.method == 'POST':
-        user_form = UserUpdateForm(request.POST,instance=request.user)
+        user_form = UserUpdateForm(request.POST, instance=request.user)
         if user_form.is_valid():
             user_form.save()
             return redirect('index')
-
-    user_form = UserUpdateForm(instance=request.user)
+    else:
+        user_form = UserUpdateForm(instance=request.user)
 
     return render(request,'users/profile.html',{'user_form':user_form})
 
-def profile_view(request):
-    return render(request,'users/profile-view.html')
+@login_required
+def profile_view(request,id):
+    user = get_object_or_404(User, pk=id)
+    return render(request,'users/profile-view.html',{'user':user})

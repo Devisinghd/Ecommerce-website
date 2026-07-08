@@ -7,18 +7,18 @@
       <div class="space-y-3">
         <p class="text-sm uppercase tracking-[0.3em] text-blue-600">Checkout</p>
         <h1 class="text-3xl font-semibold text-slate-900">Complete your order</h1>
-        <p class="max-w-2xl text-sm leading-7 text-slate-600">Confirm your shipping details and submit your order. We’ll process it right away.</p>
+        <p class="max-w-2xl text-sm leading-7 text-slate-600">Choose a saved delivery address and place your order in a few taps.</p>
       </div>
 
       <div class="space-y-4 rounded-[28px] border border-slate-200 bg-slate-50 p-6">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p class="text-sm font-semibold text-slate-700">Delivery address</p>
-            <p class="text-sm text-slate-500">Choose a saved address or add a fresh one before you pay.</p>
+            <p class="text-sm text-slate-500">Pick one of your saved addresses or add a new one.</p>
           </div>
           <a href="{% url 'add_address' %}" class="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white px-4 py-2 text-sm font-semibold text-blue-700 transition hover:border-blue-400 hover:text-blue-800">
             <span class="text-base">＋</span>
-            Add a new address
+            Add address
           </a>
         </div>
 
@@ -39,7 +39,7 @@
                 <p class="text-sm text-slate-600">{{ saved_address.city }}, {{ saved_address.state }} - {{ saved_address.postal_code }}</p>
                 <p class="text-sm text-slate-600">{{ saved_address.country }}</p>
               </div>
-              <button type="button" class="choose-address-btn inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-blue-500 hover:text-blue-600" data-id="{{ saved_address.id }}" data-full_name="{{ saved_address.full_name|escapejs }}" data-phone="{{ saved_address.phone|escapejs }}" data-line1="{{ saved_address.line1|escapejs }}" data-line2="{{ saved_address.line2|escapejs }}" data-city="{{ saved_address.city|escapejs }}" data-state="{{ saved_address.state|escapejs }}" data-postal_code="{{ saved_address.postal_code|escapejs }}" data-country="{{ saved_address.country|escapejs }}">Choose this address</button>
+              <button type="button" class="choose-address-btn inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-blue-500 hover:text-blue-600" data-id="{{ saved_address.id }}">Choose this address</button>
             </div>
           </div>
           {% endfor %}
@@ -48,7 +48,7 @@
         <div class="rounded-[24px] border border-dashed border-slate-300 bg-white p-6 text-center">
           <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-2xl shadow-sm">➕</div>
           <p class="mt-4 font-semibold text-slate-900">No delivery address yet</p>
-          <p class="mt-2 text-sm text-slate-600">Save a delivery location so checkout feels as smooth as your favourite marketplace.</p>
+          <p class="mt-2 text-sm text-slate-600">Save a delivery location so checkout feels quick and easy.</p>
           <a href="{% url 'add_address' %}" class="mt-4 inline-flex rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700">Add a new address</a>
         </div>
         {% endif %}
@@ -57,18 +57,14 @@
       <form id="checkout-form" action="" method="post" class="space-y-6">
         {% csrf_token %}
         <input type="hidden" id="selected-address-id" name="selected_address_id" value="{{ address.id|default_if_none:'' }}" />
-        <input type="hidden" id="full_name" name="full_name" value="{{ address.full_name|default:'' }}" />
-        <input type="hidden" id="phone" name="phone" value="{{ address.phone|default:'' }}" />
-        <input type="hidden" id="address_line1" name="address_line1" value="{{ address.line1|default:'' }}" />
-        <input type="hidden" id="address_line2" name="address_line2" value="{{ address.line2|default:'' }}" />
-        <input type="hidden" id="city" name="city" value="{{ address.city|default:'' }}" />
-        <input type="hidden" id="state" name="state" value="{{ address.state|default:'' }}" />
-        <input type="hidden" id="postal_code" name="postal_code" value="{{ address.postal_code|default:'' }}" />
-        <input type="hidden" id="country" name="country" value="{{ address.country|default:'' }}" />
 
         <div class="rounded-[24px] border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">
-          <p class="font-semibold">You’re ready to place this order.</p>
-          <p class="mt-1">The selected delivery address will be used automatically.</p>
+          <p class="font-semibold">Selected delivery address</p>
+          {% if address %}
+          <p class="mt-1">{{ address.full_name }} • {{ address.line1 }}{% if address.line2 %}, {{ address.line2 }}{% endif %}, {{ address.city }}</p>
+          {% else %}
+          <p class="mt-1">Choose or add an address before you continue.</p>
+          {% endif %}
         </div>
 
         <button type="submit" class="w-full rounded-3xl bg-blue-600 px-6 py-3 text-base font-semibold text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700">Complete purchase</button>
@@ -81,18 +77,13 @@
         <h2 class="mt-3 text-2xl font-semibold text-slate-900">Ready to checkout</h2>
       </div>
 
-      {% if cart %}
+      {% if checkout_items %}
       <div class="space-y-3 rounded-3xl bg-slate-50 p-4">
-        {% for item in cart %}
+        {% for item in checkout_items %}
         <div class="flex items-center justify-between gap-3 rounded-2xl bg-white p-3 shadow-sm">
-          <div class="flex items-center gap-3">
-            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700">
-              {{ item.qty }}×
-            </div>
-            <div>
-              <p class="text-sm font-semibold text-slate-900">{{ item.product.name }}</p>
-              <p class="text-xs text-slate-500">₹{{ item.price }} each</p>
-            </div>
+          <div>
+            <p class="text-sm font-semibold text-slate-900">{{ item.product.name }}</p>
+            <p class="text-xs text-slate-500">Qty {{ item.qty }}</p>
           </div>
           <p class="text-sm font-semibold text-slate-900">₹{{ item.total }}</p>
         </div>
@@ -100,14 +91,14 @@
       </div>
       {% else %}
       <div class="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-sm text-slate-600">
-        Your cart is empty.
+        No products selected for checkout.
       </div>
       {% endif %}
 
       <div class="rounded-3xl bg-slate-50 p-6">
         <div class="flex items-center justify-between text-sm text-slate-600">
           <span>Subtotal</span>
-          <span>₹{{ cart.get_total_price }}</span>
+          <span>₹{{ total_amount }}</span>
         </div>
         <div class="mt-4 flex items-center justify-between text-sm text-slate-600">
           <span>Shipping</span>
@@ -115,51 +106,20 @@
         </div>
         <div class="mt-6 flex items-center justify-between border-t border-slate-200 pt-4 text-lg font-semibold text-slate-900">
           <span>Total</span>
-          <span>₹{{ cart.get_total_price }}</span>
+          <span>₹{{ total_amount }}</span>
         </div>
       </div>
     </aside>
   </div>
 </div>
-
 {% endblock %}
 {% block scripts %}
 <script>
-    const addressData = {
-        {% for saved_address in addresses %}
-        "{{ saved_address.id }}": {
-            full_name: "{{ saved_address.full_name|escapejs }}",
-            phone: "{{ saved_address.phone|escapejs }}",
-            line1: "{{ saved_address.line1|escapejs }}",
-            line2: "{{ saved_address.line2|escapejs }}",
-            city: "{{ saved_address.city|escapejs }}",
-            state: "{{ saved_address.state|escapejs }}",
-            postal_code: "{{ saved_address.postal_code|escapejs }}",
-            country: "{{ saved_address.country|escapejs }}"
-        }{% if not forloop.last %},{% endif %}
-        {% endfor %}
-    };
-
-    function fillAddressForm(address) {
-        $('#selected-address-id').val(address.id || '');
-        $('#full_name').val(address.full_name || '');
-        $('#phone').val(address.phone || '');
-        $('#address_line1').val(address.line1 || '');
-        $('#address_line2').val(address.line2 || '');
-        $('#city').val(address.city || '');
-        $('#state').val(address.state || '');
-        $('#postal_code').val(address.postal_code || '');
-        $('#country').val(address.country || '');
-    }
-
     $('.choose-address-btn').on('click', function() {
         const addressId = $(this).data('id');
-        const selectedAddress = addressData[addressId];
-        if (!selectedAddress) return;
-
+        $('#selected-address-id').val(addressId);
         $('.address-card').removeClass('border-blue-500 bg-blue-50 shadow-sm').addClass('border-slate-200 bg-white');
         $(this).closest('.address-card').removeClass('border-slate-200 bg-white').addClass('border-blue-500 bg-blue-50 shadow-sm');
-        fillAddressForm({ id: addressId, ...selectedAddress });
     });
 
     $(document).on('submit', '#checkout-form', function(e) {
@@ -172,14 +132,7 @@
             url: "{% url 'place-order' %}",
             data: {
                 action: 'post',
-                full_name: $('#full_name').val(),
-                phone: $('#phone').val(),
-                address_line1: $('#address_line1').val(),
-                address_line2: $('#address_line2').val(),
-                city: $('#city').val(),
-                state: $('#state').val(),
-                postal_code: $('#postal_code').val(),
-                country: $('#country').val(),
+                selected_address_id: $('#selected-address-id').val(),
                 csrfmiddlewaretoken: csrftoken,
             },
             success: function(json){
