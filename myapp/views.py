@@ -6,7 +6,9 @@ from django.views.decorators.vary import vary_on_headers
 import logging
 from django.shortcuts import get_object_or_404
 from .managers import ProductsManager
-
+from .serializers import ProductSerializer
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
 
 
 logger = logging.getLogger(__name__)
@@ -33,3 +35,8 @@ def detail(request, slug):
         raise 
     return render(request,'myapp/detail.html',{'product':product})
 
+@api_view(["GET"])
+def productAPI(request):
+    products = Products.objects.all()
+    serializer = ProductSerializer(products,many=True)
+    return Response(serializer.data)
