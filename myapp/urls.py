@@ -6,6 +6,7 @@ urlpatterns = [
     path('',views.index,name='index'),
     path('<slug:slug>',views.detail,name='detail'),
 
-    #API urls
-    path('product-api/',views.productAPI,name='product-api'),
+    #API url patterns
+    path('product-api/',views.product_API,name='product-api'),
+    path('api/products/<int:pk>',views.product_detail_API,name='product-detail-api'),
 ]
