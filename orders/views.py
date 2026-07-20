@@ -126,3 +126,6 @@ def order_success(request):
 def order_failed(request):
     return render(request,'orders/order-failed.html')
 
+def orders_view(request):
+    order = OrderItem.objects.all()
+    return render(request,'orders/orderlist.html',{'order':order})
