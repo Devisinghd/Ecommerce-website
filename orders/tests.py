@@ -5,6 +5,23 @@ from django.urls import reverse
 from .models import Address
 
 
+class OrdersViewTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username="orderviewer",
+            email="orderviewer@example.com",
+            password="strong-pass-123",
+        )
+        self.client.force_login(self.user)
+
+    def test_order_history_page_renders_professionally(self):
+        response = self.client.get(reverse("order_view"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Order history")
+        self.assertContains(response, "Your recent purchases")
+
+
 class CheckoutViewTests(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
