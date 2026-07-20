@@ -35,8 +35,25 @@ def detail(request, slug):
         raise 
     return render(request,'myapp/detail.html',{'product':product})
 
-@api_view(["GET"])
-def productAPI(request):
-    products = Products.objects.all()
-    serializer = ProductSerializer(products,many=True)
+#API Views
+#Get API
+@api_view(["GET","POST"])
+def product_API(request):
+    if request.method == 'GET':
+        products = Products.objects.all()
+        serializer = ProductSerializer(products,many=True)
+        return Response(serializer.data)
+    elif request.method == 'POST':
+        serializer = ProductSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+         
+
+@api_view(['GET'])
+def product_detail_API(request,pk):
+    product = Products.objects.get(pk=pk)
+    serializer = ProductSerializer(product)
     return Response(serializer.data)
+
+#
