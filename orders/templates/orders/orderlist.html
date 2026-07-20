@@ -1,0 +1,41 @@
+{% extends 'myapp/base.html' %}
+{% block title %}Order history · ShopFusion{% endblock %}
+{% block body %}
+<div class="page-shell">
+  <div class="panel" style="padding:24px; margin-bottom:20px;">
+    <div class="section-head">
+      <div>
+        <p class="badge">Order history</p>
+        <h2>Your recent purchases</h2>
+        <p>A clear overview of your latest orders and the products you purchased.</p>
+      </div>
+      <a href="{% url 'index' %}" class="btn-primary">Continue shopping</a>
+    </div>
+  </div>
+
+  {% if order %}
+  <div style="display:grid; gap:14px;">
+    {% for item in order %}
+    <div class="panel" style="padding:20px;">
+      <div class="section-head" style="margin-bottom:0; align-items:center;">
+        <div>
+          <p style="margin:0; color:var(--muted);">Order #{{ item.order.id }}</p>
+          <h3 style="margin:6px 0 0;">{{ item.product.name }}</h3>
+          <p style="margin:6px 0 0; color:var(--muted);">Quantity: {{ item.quantity }}</p>
+        </div>
+        <div class="summary-card" style="margin:0; min-width:180px; text-align:right;">
+          <p style="margin:0; color:var(--muted);">Amount</p>
+          <p style="margin:6px 0 0; font-size:1.1rem; font-weight:700; color:var(--text);">₹{{ item.total_price|floatformat:2 }}</p>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="panel form-card" style="text-align:center;">
+    <h2>No orders yet</h2>
+    <p>Your purchased items will appear here once you place an order.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

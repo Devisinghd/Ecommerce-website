@@ -1,35 +1,28 @@
 {% extends 'myapp/base.html' %}
-
 {% block title %}Login · ShopMate{% endblock %}
 {% block body %}
-<div class="min-h-screen bg-slate-50 px-4 py-10">
-  <div class="mx-auto max-w-2xl rounded-[28px] bg-white p-8 shadow-xl shadow-slate-200/70 sm:p-10">
-    <div class="mb-8 text-center">
-      <p class="text-sm font-semibold uppercase tracking-[0.24em] text-blue-600">Welcome back</p>
-      <h1 class="mt-4 text-4xl font-semibold text-slate-900 sm:text-5xl">Sign in to your account</h1>
-      <p class="mt-3 text-base leading-7 text-slate-600">Enter your credentials to access ShopMate and continue shopping.</p>
-    </div>
+<section class="page-shell">
+  <div class="panel form-card" style="max-width:620px; margin:0 auto;">
+    <p class="badge">Welcome back</p>
+    <h1>Sign in to your account</h1>
+    <p>Access your saved cart, order history, and a smoother checkout experience.</p>
 
-    <form method="POST" class="space-y-6">
+    <form method="POST" class="form-actions">
       {% csrf_token %}
-      <div class="space-y-4">
-        <label for="id_username" class="block text-sm font-medium text-slate-700">Username</label>
+      <div class="field">
+        <label for="id_username">Username</label>
         {{ form.username }}
       </div>
-      <div class="space-y-4">
-        <label for="id_password" class="block text-sm font-medium text-slate-700">Password</label>
+      <div class="field">
+        <label for="id_password">Password</label>
         {{ form.password }}
       </div>
-
-      <button type="submit" class="w-full rounded-2xl bg-blue-600 px-5 py-3 text-base font-semibold text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700">
-        Login
-      </button>
+      <button type="submit" class="btn-primary" style="width:100%;">Login</button>
     </form>
 
-    <div class="mt-8 flex flex-col gap-3 border-t border-slate-200 pt-6 text-center text-sm text-slate-500">
-      <p>Don't have an account? <a href="{% url 'register' %}" class="font-semibold text-blue-600 hover:text-blue-700">Create one</a></p>
-      <p>If you have trouble signing in, please make sure your email is verified.</p>
+    <div style="margin-top:20px; text-align:center; color:var(--muted);">
+      <p>Don't have an account? <a href="{% url 'register' %}" style="color:var(--brand); font-weight:700;">Create one</a></p>
     </div>
   </div>
-</div>
+</section>
 {% endblock %}

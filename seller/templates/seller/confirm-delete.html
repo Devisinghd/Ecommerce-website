@@ -1,28 +1,26 @@
 {% extends 'myapp/base.html' %}
-{% block title %}Delete Product · ShopMate{% endblock %}
+{% block title %}Delete Product · ShopFusion{% endblock %}
 
 {% block body %}
-<div class="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-10">
-  <div class="mx-4 w-full max-w-md rounded-[32px] border border-slate-200 bg-white p-8 shadow-sm shadow-slate-200/50">
-    <div class="text-center">
-      <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-rose-100">
-        <svg class="h-6 w-6 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-        </svg>
-      </div>
-      <h2 class="mb-2 text-xl font-semibold text-slate-900">Delete Product</h2>
-      <p class="mb-6 text-sm text-slate-600">Are you sure you want to delete this product? This action cannot be undone.</p>
+<div class="page-shell" style="display:flex; justify-content:center; align-items:center; min-height:70vh;">
+  <div class="panel form-card" style="max-width:480px; text-align:center;">
+    <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full" style="background:#fee2e2;">
+      <svg class="h-6 w-6" style="color:var(--danger);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+      </svg>
+    </div>
+    <h2>Delete Product</h2>
+    <p>Are you sure you want to delete this product? This action cannot be undone.</p>
+
+    <div class="summary-card" style="margin:20px 0; text-align:left;">
+      <h3 style="margin:0;">{{ product.name }}</h3>
+      <p style="margin:6px 0 0; color:var(--muted);">₹{{ product.price|floatformat:2 }}</p>
     </div>
 
-    <div class="mb-6 rounded-2xl bg-slate-50 p-4">
-      <h3 class="font-medium text-slate-900">{{ product.name }}</h3>
-      <p class="mt-1 text-sm text-slate-500">₹{{ product.price|floatformat:2 }}</p>
-    </div>
-
-    <form method="POST" class="flex gap-3">
+    <form method="POST" class="nav-actions" style="justify-content:center; flex-wrap:wrap;">
       {% csrf_token %}
-      <a href="{% url 'seller-dashboard' %}" class="flex-1 rounded-2xl bg-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-800 transition hover:bg-slate-300">Cancel</a>
-      <button type="submit" class="flex-1 rounded-2xl bg-rose-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-rose-700">Delete</button>
+      <a href="{% url 'seller-dashboard' %}" class="btn-outline">Cancel</a>
+      <button type="submit" class="btn-secondary" style="background:#dc2626;">Delete</button>
     </form>
   </div>
 </div>
