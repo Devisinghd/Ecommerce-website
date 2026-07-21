@@ -57,8 +57,15 @@
           <p style="margin:6px 0 0;">Choose or add an address before you continue.</p>
           {% endif %}
         </div>
-
-        <button type="submit" class="btn-primary" style="width:100%; justify-content:center;">Complete purchase</button>
+        {% if checkout_items %}
+          {% if address %}
+          <button type="submit" class="btn-primary" style="width:100%;justify-content:center;">Complete purchase</button>
+          {% else %}
+          <a href="{% url 'add_address' %}" class="btn-primary" style="width:100%;justify-content:center;">Add an address</a>
+          {% endif %}
+        {% else %}
+        <a href="{% url 'checkout_warning' %}" class="btn-primary" style="width:100%;justify-content:center;">Complete purchase</a>
+        {% endif %}
       </form>
     </section>
 
