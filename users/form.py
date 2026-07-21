@@ -37,13 +37,14 @@ class LoginForm(AuthenticationForm):
 class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['username', 'email']
+        fields = ['username']
         widgets = {
             'username': forms.TextInput(attrs={"placeholder": "Enter Username"}),
-            'email': forms.EmailInput(attrs={"placeholder": "example@gmail.com"}),
         }
 
     def __init__(self, *args, **kwargs):
         super(UserUpdateForm, self).__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs.update({'class': 'w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50'})
+
+
