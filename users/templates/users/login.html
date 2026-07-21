@@ -1,27 +1,36 @@
 {% extends 'myapp/base.html' %}
 {% block title %}Login · ShopMate{% endblock %}
 {% block body %}
-<section class="page-shell">
-  <div class="panel form-card" style="max-width:620px; margin:0 auto;">
-    <p class="badge">Welcome back</p>
-    <h1>Sign in to your account</h1>
-    <p>Access your saved cart, order history, and a smoother checkout experience.</p>
+<section class="auth-shell">
+  <div class="auth-inner">
+    <div class="auth-panel">
+      <div class="auth-card" style="max-width: 620px; margin: 0 auto;">
+        <div class="auth-header">
+          <span class="auth-badge ">Welcome back</span>
+          <div class="auth-header-text">
+            <h1 class="auth-title">Sign in to your account</h1>
+            <p class="auth-copy">Access your saved cart, order history, and a smoother checkout experience.</p>
+          </div>
+        </div>
 
-    <form method="POST" class="form-actions">
-      {% csrf_token %}
-      <div class="field">
-        <label for="id_username">Username</label>
-        {{ form.username }}
-      </div>
-      <div class="field">
-        <label for="id_password">Password</label>
-        {{ form.password }}
-      </div>
-      <button type="submit" class="btn-primary" style="width:100%;">Login</button>
-    </form>
+        <form method="POST" class="auth-actions">
+          {% csrf_token %}
+          <div class="auth-field">
+            <label for="id_username">Username</label>
+            {{ form.username }}
+          </div>
+          <div class="auth-field">
+            <label for="id_password">Password</label>
+            {{ form.password }}
+          </div>
+          <button type="submit" class="btn-primary">Login</button>
+        </form>
 
-    <div style="margin-top:20px; text-align:center; color:var(--muted);">
-      <p>Don't have an account? <a href="{% url 'register' %}" style="color:var(--brand); font-weight:700;">Create one</a></p>
+        <div class="auth-footer">
+          <p>Don't have an account? <a href="{% url 'register' %}">Create one</a></p>
+          <a href="{% url 'password_reset' %}" class="btn-outline auth-secondary-button">Forgot password?</a>
+        </div>
+      </div>
     </div>
   </div>
 </section>
