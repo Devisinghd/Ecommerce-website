@@ -7,6 +7,8 @@ from cart.cart import Cart
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from myapp.models import Products
+from django.shortcuts import get_object_or_404
+from django.contrib import messages
 
 
 @login_required
@@ -127,5 +129,24 @@ def order_failed(request):
     return render(request,'orders/order-failed.html')
 
 def orders_view(request):
-    order = OrderItem.objects.all()
+    order = OrderItem.objects.filter(order__user=request.user)
     return render(request,'orders/orderlist.html',{'order':order})
+
+def checkout_warning(request):
+    return render(request,'orders/checkout_warning.html')
+
+@login_required
+def cancel_order(request, id):
+    order_item = get_object_or_404(OrderItem, id=id, order__user=request.user)
+    order = order_item.order
+
+    if request.method == "POST":
+        order_item.delete()
+        # If the parent order has no more items, remove the order as well
+        if not OrderItem.objects.filter(order=order).exists():
+            order.delete()
+        messages.success(request, "Order cancelled successfully.")
+        return redirect("order_view")
+
+    messages.info(request, "Cancellation not confirmed.")
+    return redirect("order_view")
