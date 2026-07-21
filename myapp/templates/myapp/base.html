@@ -57,6 +57,14 @@
         </div>
       </header>
 
+      {% if messages %}
+      <div class="page-shell" style="padding-top:12px;">
+        {% for message in messages %}
+          <div class="auth-notice" role="status">{{ message }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
       <main>
         {% block body %}{% endblock %}
       </main>
