@@ -50,7 +50,7 @@ def product_API(request):
             return Response(serializer.data)
          
 
-@api_view(['GET'])
+@api_view(["GET"])
 def product_detail_API(request,pk):
     product = Products.objects.get(pk=pk)
     serializer = ProductSerializer(product)
