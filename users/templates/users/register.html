@@ -1,31 +1,42 @@
 {% extends 'myapp/base.html' %}
-{% block title %}Register · ShopMate{% endblock %}
+{% block title %}Register · ShopFusion{% endblock %}
 {% block body %}
-<section class="page-shell">
-  <div class="panel form-card" style="max-width:720px; margin:0 auto;">
-    <p class="badge">Create account</p>
-    <h1>Register for ShopFusion</h1>
-    <p>Create your account to save items, view orders, and checkout faster.</p>
+<section class="auth-shell">
+  <div class="auth-inner">
+    <div class="auth-panel">
+      <div class="auth-card" style="max-width: 720px; margin: 0 auto;">
+        <div class="auth-header">
+          <span class="auth-badge">Create account</span>
+          <div>
+            <h1 class="auth-title">Register for ShopFusion</h1>
+            <p class="auth-copy">Create your account to save items, view orders, and checkout faster.</p>
+          </div>
+        </div>
 
-    <form method="POST" class="form-actions">
-      {% csrf_token %}
-      {{ form.non_field_errors }}
-      {% for field in form %}
-      <div class="field">
-        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-        {{ field }}
-        {% if field.help_text %}
-        <p style="color:var(--muted); font-size:0.84rem;">{{ field.help_text }}</p>
-        {% endif %}
-        {% for error in field.errors %}
-        <p style="color:var(--danger); font-size:0.9rem;">{{ error }}</p>
-        {% endfor %}
+        <form method="POST" class="auth-actions">
+          {% csrf_token %}
+          {{ form.non_field_errors }}
+          {% for field in form %}
+            <div class="auth-field">
+              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+              {% if field.help_text %}
+                <p class="auth-copy" style="font-size:0.88rem; margin:0;">{{ field.help_text }}</p>
+              {% endif %}
+              {% for error in field.errors %}
+                <p class="error-text">{{ error }}</p>
+              {% endfor %}
+            </div>
+          {% endfor %}
+          <button type="submit" class="btn-primary">Register</button>
+        </form>
+
+        <div class="auth-footer">
+          <p>Already have an account? <a href="{% url 'login' %}">Sign in</a></p>
+          <span></span>
+        </div>
       </div>
-      {% endfor %}
-      <button type="submit" class="btn-primary" style="width:100%;">Register</button>
-    </form>
-
-    <p style="margin-top:20px; text-align:center; color:var(--muted);">Already have an account? <a href="{% url 'login' %}" style="color:var(--brand); font-weight:700;">Sign in</a></p>
+    </div>
   </div>
 </section>
 {% endblock %}
