@@ -1,35 +1,71 @@
 {% extends 'myapp/base.html' %}
-{% block title %}Profile · ShopMate{% endblock %}
+{% block title %}Profile · ShopFusion{% endblock %}
 {% block body %}
-<div class="min-h-screen bg-slate-50 px-4 py-12">
-  <div class="mx-auto max-w-4xl space-y-8">
-    <div class="rounded-[28px] border border-slate-200 bg-white p-8 shadow-sm shadow-slate-200/50">
-      <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p class="text-sm uppercase tracking-[0.3em] text-blue-600">Account</p>
-          <h1 class="mt-3 text-3xl font-semibold text-slate-900">Manage your profile</h1>
-          <p class="mt-2 text-sm text-slate-600">Update your details and keep your account information current.</p>
-        </div>
-        <a href="{% url 'logout' %}" class="inline-flex items-center rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">Sign out</a>
+  <div class="page-shell">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Account settings</p>
+        <h2>Manage your profile</h2>
+        <p>Update your details and keep your ShopFusion account current and secure.</p>
       </div>
+      <a href="{% url 'logout' %}" class="btn-secondary">Sign out</a>
+    </div>
 
-      <form method="POST" class="space-y-6">
-        {% csrf_token %}
-        {{ user_form.non_field_errors }}
-        <div class="grid gap-6 sm:grid-cols-2">
-          {% for field in user_form %}
-            <div class="space-y-2">
-              <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-slate-700">{{ field.label }}</label>
-              {{ field }}
-              {% for error in field.errors %}
-                <p class="text-sm text-rose-600">{{ error }}</p>
+    <div class="profile-grid">
+      <section class="panel">
+        <div class="form-card">
+          <h3 class="panel-title">Profile details</h3>
+          <p class="panel-copy">Your account information is shown below. Update your username and keep the rest of your account details secure.</p>
+
+          <form method="POST" class="profile-form">
+            {% csrf_token %}
+            {{ user_form.non_field_errors }}
+
+            <div class="field-grid">
+              {% for field in user_form %}
+                <div class="field">
+                  <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                  {{ field }}
+                  {% for error in field.errors %}
+                    <p class="error-text">{{ error }}</p>
+                  {% endfor %}
+                </div>
               {% endfor %}
             </div>
-          {% endfor %}
+
+            <div class="form-actions">
+              <button type="submit" class="btn-primary">Update profile</button>
+            </div>
+          </form>
         </div>
-        <button type="submit" class="w-full rounded-2xl bg-blue-600 px-6 py-3 text-base font-semibold text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700">Update profile</button>
-      </form>
+      </section>
+
+      <aside class="panel profile-summary">
+        <div class="profile-summary-card">
+          <div class="profile-avatar">{{ user.first_name|default:user.username|slice:":1"|upper }}</div>
+          <h3>{{ user.get_full_name|default:user.username }}</h3>
+          <p class="panel-copy">Welcome back! Here’s a quick overview of your account activity and settings.</p>
+
+          <dl class="summary-list">
+            <div>
+              <dt>Username</dt>
+              <dd>{{ user.username }}</dd>
+            </div>
+            <div>
+              <dt>Email</dt>
+              <dd>{{ user.email }}</dd>
+            </div>
+            <div>
+              <dt>Member since</dt>
+              <dd>{{ user.date_joined|date:"F j, Y" }}</dd>
+            </div>
+            <div>
+              <dt>Last login</dt>
+              <dd>{% if user.last_login %}{{ user.last_login|date:"F j, Y, g:i a" }}{% else %}Not available{% endif %}</dd>
+            </div>
+          </dl>
+        </div>
+      </aside>
     </div>
   </div>
-</div>
 {% endblock %}
