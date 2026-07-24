@@ -8,8 +8,8 @@ from django.shortcuts import get_object_or_404
 from .managers import ProductsManager
 from .serializers import ProductSerializer
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
-from rest_framework.decorators import APIView
+from rest_framework import generics
+from rest_framework import viewsets
 
 
 logger = logging.getLogger(__name__)
@@ -29,7 +29,7 @@ def index(request):
 def detail(request, slug):
     logger.info(f"Fetching a product with id")
     try:
-        product = Products.objects.get(slug=slug)
+        product = get_object_or_404(Products, slug=slug)
         logger.debug(f"founs product{product.name} (${product.price})")
     except Exception as e:
         logger.error(f"Error fetching the product with the id{slug}")
@@ -38,62 +38,22 @@ def detail(request, slug):
 
 #API Views
 
-class ProductDetailAPIView(APIView):
-    def get_object(self,pk):
-        try:
-            return Products.objects.get(pk=pk)
-        except Products.DoesNotExist:
-            return None
-
-    def get(self,request,pk):
-        product = self.get_object(pk)
-        if not product:
-            return Response({"Error":"product not found"})
-        serializer = ProductSerializer(product)
-        return Response(serializer.data)
+class ProductViewSet(viewsets.ModelViewSet):
+    queryset = Products.objects.all()
+    serializer_class = ProductSerializer 
     
-    def put(self,request,pk):
-        product = self.get_object(pk)
-        if not product:
-            return Response({"Error":"product not found"})
-        serializer = ProductSerializer(product,data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-        return Response(serializer.data)
-    
-    def delete(self,request,pk):
-        product = self.get_object(pk)
-        if not product:
-            return Response({"Error":"product not found"})
-        product.delete()
-        return Response({"message":"product deleted"})
 
-@api_view(["GET","POST"])
-def product_API(request):
-    if request.method == 'GET':
-        products = Products.objects.all()
-        serializer = ProductSerializer(products,many=True)
-        return Response(serializer.data)
-    elif request.method == 'POST':
-        serializer = ProductSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-         
 
-@api_view(["GET","POSt"])
-def product_detail_API(request,pk):
-    product = Products.objects.get(pk=pk)
-    if request.method == "GET":
-        serializer = ProductSerializer(product)
-        return Response(serializer.data)
-    elif request.method == 'PUT':
-        serializer = ProductSerializer(product,data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-    elif request.method == "DELETE":
-        product.delete()
-        return Response({"message":"product deleted"})
 
-#
+
+
+
+"""class ProductListCreateAPI(generics.ListCreateAPIView):
+    queryset = Products.objects.all()
+    serializer_class = ProductSerializer
+
+class ProductRetrieveUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Products.objects.all()
+    serializer_class = ProductSerializer
+
+"""
