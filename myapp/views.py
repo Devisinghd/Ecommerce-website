@@ -9,6 +9,7 @@ from .managers import ProductsManager
 from .serializers import ProductSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from rest_framework.decorators import APIView
 
 
 logger = logging.getLogger(__name__)
@@ -36,7 +37,37 @@ def detail(request, slug):
     return render(request,'myapp/detail.html',{'product':product})
 
 #API Views
-#Get API
+
+class ProductDetailAPIView(APIView):
+    def get_object(self,pk):
+        try:
+            return Products.objects.get(pk=pk)
+        except Products.DoesNotExist:
+            return None
+
+    def get(self,request,pk):
+        product = self.get_object(pk)
+        if not product:
+            return Response({"Error":"product not found"})
+        serializer = ProductSerializer(product)
+        return Response(serializer.data)
+    
+    def put(self,request,pk):
+        product = self.get_object(pk)
+        if not product:
+            return Response({"Error":"product not found"})
+        serializer = ProductSerializer(product,data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+        return Response(serializer.data)
+    
+    def delete(self,request,pk):
+        product = self.get_object(pk)
+        if not product:
+            return Response({"Error":"product not found"})
+        product.delete()
+        return Response({"message":"product deleted"})
+
 @api_view(["GET","POST"])
 def product_API(request):
     if request.method == 'GET':
@@ -50,10 +81,19 @@ def product_API(request):
             return Response(serializer.data)
          
 
-@api_view(["GET"])
+@api_view(["GET","POSt"])
 def product_detail_API(request,pk):
     product = Products.objects.get(pk=pk)
-    serializer = ProductSerializer(product)
-    return Response(serializer.data)
+    if request.method == "GET":
+        serializer = ProductSerializer(product)
+        return Response(serializer.data)
+    elif request.method == 'PUT':
+        serializer = ProductSerializer(product,data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+    elif request.method == "DELETE":
+        product.delete()
+        return Response({"message":"product deleted"})
 
 #
