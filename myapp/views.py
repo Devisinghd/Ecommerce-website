@@ -10,7 +10,7 @@ from .serializers import ProductSerializer
 from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework import viewsets
-
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 logger = logging.getLogger(__name__)
 # Create your views here.
@@ -41,19 +41,5 @@ def detail(request, slug):
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Products.objects.all()
     serializer_class = ProductSerializer 
+    permission_classes = IsAuthenticatedOrReadOnly
     
-
-
-
-
-
-
-"""class ProductListCreateAPI(generics.ListCreateAPIView):
-    queryset = Products.objects.all()
-    serializer_class = ProductSerializer
-
-class ProductRetrieveUpdateDelete(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Products.objects.all()
-    serializer_class = ProductSerializer
-
-"""
