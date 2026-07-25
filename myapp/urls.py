@@ -12,6 +12,4 @@ urlpatterns = [
 
     #API url patterns
     path("api/",include(router.urls)),
-    #path('product-api/',views.ProductListCreateAPI.as_view(),name='product-api'),
-    #path('product/api/<int:pk>',views.ProductRetrieveUpdateDelete.as_view(),name='product-detail-api'),
 ]
