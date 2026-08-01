@@ -26,11 +26,11 @@ COPY . /app/
 # Create necessary directories
 RUN mkdir -p /app/staticfiles /app/media
 
-# Collect static files (optional, for production)
-# RUN python manage.py collectstatic --noinput
+# Collect static files for production
+RUN python manage.py collectstatic --noinput
 
 # Expose port
 EXPOSE 8000
 
 # Run the application
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["gunicorn", "mysite.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
