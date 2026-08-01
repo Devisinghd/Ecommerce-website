@@ -1,119 +1,188 @@
-# ShopFusion — Django E-Commerce Website
+# Ecommerce Website
 
-ShopMate is a Django-based e-commerce application built to demonstrate a complete shopping experience. The project includes product browsing, user authentication, cart management, checkout flows, email verification, and order handling.
+## Project Summary
+This is a production-ready Django e-commerce backend with PostgreSQL, secure JWT APIs, seller product management, shopping cart and checkout workflows, address handling, order history, and interactive API documentation.
 
-## ✅ Features
+## Why this project matters
+This repository demonstrates a real-world backend implementation for a modern e-commerce application. It combines clean Django architecture, REST API design, security best practices, and deployment-ready configuration for container-based platforms such as Render, Railway, AWS, and others.
 
-- User registration, login, logout, and profile management
-- Product listing and detail pages with image handling
-- Shopping cart operations with AJAX-powered add-to-cart
-- Order checkout flow with shipping address collection
-- Email verification and password reset support
-- Modular Django app structure for maintainability
-- Admin dashboard for product and user management
+## ✅ What has been implemented
+
+- Full product catalog and seller product CRUD
+- Customer-facing product browsing and search
+- Shopping cart operations and checkout flow
+- Address management for shipping and checkout
+- Order creation, order items, and order history tracking
+- JWT authentication with access and refresh tokens
+- API documentation with Swagger UI and ReDoc
+- Dockerized production build using Gunicorn
+- PostgreSQL-ready deployment configuration
 
 ## 🧱 Project Structure
 
-- `myapp/` — core storefront and product pages
-- `cart/` — shopping cart logic and templates
-- `orders/` — checkout, address, and order workflows
-- `users/` — authentication, registration, verification, and profile views
-- `mysite/` — Django project settings and URL configuration
-- `media/` — uploaded product images
-- `db.sqlite3` — local development database
+- `myapp/` — storefront views, product APIs, and frontend templates
+- `cart/` — shopping cart logic and cart context injection
+- `orders/` — order, order item, and address models and workflows
+- `users/` — authentication, user registration, and token handling
+- `seller/` — seller dashboard and product management
+- `mysite/` — Django settings, URL routing, and WSGI configuration
+- `media/` — persisted uploaded product images
+- `requirements.txt` — Python dependencies
+- `Dockerfile` — containerized production build
+- `docker-compose.yml` — local Docker stack with PostgreSQL
 
 ## 💻 Tech Stack
 
 - Python 3.11+
-- Django 5.0.3
-- SQLite for development
-- Tailwind CSS via CDN for styling
-- jQuery for cart interaction and basic AJAX
+- Django 5.2.12
+- Django REST Framework
+- PostgreSQL
+- REST authentication via `djangorestframework-simplejwt`
+- OpenAPI docs via `drf-spectacular`
+- `gunicorn` for production WSGI serving
+- Docker for containerization
 
-## 🚀 Getting Started
+## 🚀 Local setup
 
-### 1. Clone the repository
+1. Clone the repository
 
 ```bash
 git clone https://github.com/devisinghd/Ecommerce-website.git
 cd Ecommerce-website
 ```
 
-### 2. Create a virtual environment
+2. Copy the environment example
 
 ```bash
-python -m venv .venv
+copy .env.example .env
 ```
 
-### 3. Activate the virtual environment
+3. Update `.env`
+
+- Set a real `DJANGO_SECRET_KEY`
+- Set `DEBUG=False` for production or `DEBUG=True` for local development
+- Configure PostgreSQL database credentials
+- Configure email settings if needed
+
+4. Create and activate a virtual environment
 
 Windows:
 
 ```powershell
+python -m venv .venv
 .venv\Scripts\Activate.ps1
 ```
 
 macOS / Linux:
 
 ```bash
+python -m venv .venv
 source .venv/bin/activate
 ```
 
-### 4. Install dependencies
+5. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 5. Apply migrations
+6. Run migrations
 
 ```bash
 python manage.py migrate
 ```
 
-### 6. Run the development server
+7. Run the development server
 
 ```bash
 python manage.py runserver
 ```
 
-Open your browser at `http://127.0.0.1:8000/`.
+Open `http://127.0.0.1:8000/` in the browser.
 
-## 🔧 Admin Access
+## 📚 API documentation
 
-Create a Django superuser to manage products, users, and orders:
+- Swagger UI: `http://localhost:8000/api/swagger-ui/`
+- ReDoc: `http://localhost:8000/api/redoc/`
+- OpenAPI schema: `http://localhost:8000/api/schema/`
+
+## 🌐 Deployment readiness
+
+This app is ready to deploy on any container-capable service, including:
+
+- Render
+- Railway
+- AWS ECS / Fargate
+- AWS Elastic Beanstalk
+- Google Cloud Run
+- Azure App Service
+
+### What makes it ready
+
+- Environment-based configuration for secrets and database
+- PostgreSQL support via `DATABASE_URL`
+- Production WSGI server (`gunicorn`)
+- Static collection configured with `STATIC_ROOT`
+- Secure cookie and SSL proxy settings are enabled when `DEBUG=False`
+- API docs and clean endpoint structure
+
+### Recommended production commands
+
+- Build dependencies:
 
 ```bash
-python manage.py createsuperuser
+pip install -r requirements.txt
 ```
 
-Then visit:
+- Run migrations:
 
-```text
-http://127.0.0.1:8000/admin/
+```bash
+python manage.py migrate
 ```
 
-## 📌 Notes
+- Collect static assets:
 
-- This project currently uses SQLite for development. For production, switch to PostgreSQL, MySQL, or another supported database.
-- Tailwind is loaded through CDN in templates, making setup simple for prototype development.
-- The project structure is designed to be extensible, so adding payments, search, and marketplace features is straightforward.
+```bash
+python manage.py collectstatic --noinput
+```
 
-## 🚧 Potential Enhancements
+- Start the server:
 
-- Add payment gateway integration (Stripe, Razorpay, PayPal)
-- Improve product search and filtering
-- Add order history and customer dashboards
-- Implement responsive mobile navigation and cart animation
-- Deploy to a managed cloud platform
+```bash
+gunicorn mysite.wsgi:application --bind 0.0.0.0:8000 --workers 3
+```
 
-## 🤝 Contributing
+## ☁️ Cloud deployment notes
 
-Contributions, bug reports, and enhancements are welcome. Please fork the repository and submit a pull request.
+### Render
+
+- Use Docker or the Python service mode.
+- Set env vars: `DJANGO_SECRET_KEY`, `DEBUG=False`, `ALLOWED_HOSTS`, `DATABASE_URL`, and email settings.
+
+### Railway
+
+- Use the Dockerfile or Python service.
+- Railway provides a PostgreSQL add-on; wire it using `DATABASE_URL`.
+
+### AWS ECS / Fargate
+
+- Build a Docker image and push to ECR.
+- Use a managed RDS PostgreSQL instance or AWS Postgres service.
+- Set environment variables in your task definition.
+
+## 👩‍💼 Shopfusion summary
+
+This project is built as a complete backend service for an e-commerce application. It demonstrates:
+
+- scalable Django architecture with separated app responsibilities
+- REST API design and documentation
+- secure authentication and user session handling
+- production-grade configuration and Docker deployment
+- order and checkout workflows with shipping address support
+
+It is ready for production deployment and designed for easy extension with payment, search, analytics, and marketplace features.
 
 ## 👤 Author
 
 Developed by Dev Dangi
-
----
 
