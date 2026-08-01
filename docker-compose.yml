@@ -21,13 +21,15 @@ services:
     image: devisingh/ecommerce-web:latest
     build: .
     container_name: ecommerce_web
-    command: python manage.py migrate && python manage.py runserver 0.0.0.0:8000
+    command: gunicorn mysite.wsgi:application --bind 0.0.0.0:8000 --workers 3
     volumes:
       - .:/app
     ports:
       - "8000:8000"
     environment:
-      - DEBUG=True
+      - DEBUG=False
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-change-me}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost,127.0.0.1}
       - DB_NAME=${DB_NAME:-appdb}
       - DB_USER=${DB_USER:-adminuser}
       - DB_PASSWORD=${DB_PASSWORD:-556190}
