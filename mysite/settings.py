@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 from dotenv import load_dotenv
 import os
-import urllib.parse
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -95,33 +95,23 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 
 database_url = os.getenv('DATABASE_URL')
 if database_url:
-    db_url = urllib.parse.urlparse(database_url)
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': db_url.path.lstrip('/'),
-            'USER': db_url.username,
-            'PASSWORD': db_url.password,
-            'HOST': db_url.hostname,
-            'PORT': db_url.port or '5432',
-            'OPTIONS': {
-                'sslmode': 'require',
-            },
-        }
+        'default': dj_database_url.config(
+            default=database_url,
+            conn_max_age=600,
+            ssl_require=True,
+        )
     }
 else:
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('DB_NAME', 'appdb'),
-            'USER': os.getenv('DB_USER', 'adminuser'),
-            'PASSWORD': os.getenv('DB_PASSWORD', '556190'),
-            'HOST': os.getenv('DB_HOST', '127.0.0.1'),
-            'PORT': os.getenv('DB_PORT', '5432'),
-            'OPTIONS': {
-                'sslmode': 'require',
-            } if os.getenv('DB_HOST') else {},
-        }
+        'default': dj_database_url.config(
+            default=(
+                f"postgres://{os.getenv('DB_USER', 'adminuser')}:{os.getenv('DB_PASSWORD', '556190')}"
+                f"@{os.getenv('DB_HOST', '127.0.0.1')}:{os.getenv('DB_PORT', '5432')}/{os.getenv('DB_NAME', 'appdb')}"
+            ),
+            conn_max_age=600,
+            ssl_require=False,
+        )
     }
 
 
