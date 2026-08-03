@@ -17,19 +17,24 @@ import urllib.parse
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(BASE_DIR / ".env")
+
+# Load local .env only for development environments.
+# Render and other production hosts should use their own environment variables.
+if not os.getenv('RENDER') and not os.getenv('DYNO') and not os.getenv('CI'):
+    load_dotenv(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-change-me')
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', os.getenv('SECRET_KEY', 'django-insecure-change-me'))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = [host.strip() for host in os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if host.strip()]
+allowed_hosts_value = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1')
+ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_value.split(',') if host.strip()] or ['localhost', '127.0.0.1']
 
 
 # Application definition
@@ -88,8 +93,9 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-if os.getenv('DATABASE_URL'):
-    db_url = urllib.parse.urlparse(os.getenv('DATABASE_URL'))
+database_url = os.getenv('DATABASE_URL')
+if database_url:
+    db_url = urllib.parse.urlparse(database_url)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -98,6 +104,9 @@ if os.getenv('DATABASE_URL'):
             'PASSWORD': db_url.password,
             'HOST': db_url.hostname,
             'PORT': db_url.port or '5432',
+            'OPTIONS': {
+                'sslmode': 'require',
+            },
         }
     }
 else:
@@ -109,6 +118,9 @@ else:
             'PASSWORD': os.getenv('DB_PASSWORD', '556190'),
             'HOST': os.getenv('DB_HOST', '127.0.0.1'),
             'PORT': os.getenv('DB_PORT', '5432'),
+            'OPTIONS': {
+                'sslmode': 'require',
+            } if os.getenv('DB_HOST') else {},
         }
     }
 
