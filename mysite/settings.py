@@ -40,6 +40,7 @@ ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_value.split(',') if host
 # Application definition
 
 INSTALLED_APPS = [
+    'dj_database_url',
     'drf_spectacular',
     'django_filters',
     'rest_framework.authtoken',
