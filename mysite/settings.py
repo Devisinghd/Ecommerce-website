@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from django.contrib.gis import db
 from dotenv import load_dotenv
 import os
 import dj_database_url
@@ -94,25 +95,24 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASE_URL = os.getenv('DATABASE_URL')
+db_env_string = os.getenv('DATABASE_URL') or os.getenv('Database_URL')
 
-if DATABASE_URL:
+# 2. Check if a valid production connection string was found
+if db_env_string:
     DATABASES = {
-        # dj_database_url.parse reads the string explicitly to resolve host translation bugs
-        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
+        'default': dj_database_url.parse(db_env_string, conn_max_age=600)
     }
-    # Enforce SSL requirement since Render PostgreSQL rejects unencrypted traffic
     DATABASES['default']['OPTIONS'] = {'sslmode': 'require'}
 else:
     # Direct local fallback when running on your machine (without needing DB_ environment variables)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'postgres',
-            'USER': 'postgres',
-            'PASSWORD': 'postgres',
-            'HOST': 'db',
-            'PORT': '5432',
+            'NAME': os.getenv('DB_NAME'),
+            'USER': os.getenv('DB_USER'),
+            'PASSWORD': os.getenv('DB_PASSWORD'),
+            'HOST': os.getenv('DB_HOST'),
+            'PORT': os.getenv('DB_PORT'),
         }
     }
 
