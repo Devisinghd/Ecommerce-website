@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-from django.contrib.gis import db
 from dotenv import load_dotenv
 import os
 import dj_database_url
@@ -41,7 +40,6 @@ ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_value.split(',') if host
 # Application definition
 
 INSTALLED_APPS = [
-    'dj_database_url',
     'drf_spectacular',
     'django_filters',
     'rest_framework.authtoken',
