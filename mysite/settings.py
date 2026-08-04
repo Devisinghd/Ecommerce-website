@@ -93,27 +93,27 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-database_url = os.getenv('DATABASE_URL')
-if database_url:
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=database_url,
-            conn_max_age=600,
-            ssl_require=True,
-        )
-    }
-else:
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=(
-                f"postgres://{os.getenv('DB_USER', 'adminuser')}:{os.getenv('DB_PASSWORD', '556190')}"
-                f"@{os.getenv('DB_HOST', '127.0.0.1')}:{os.getenv('DB_PORT', '5432')}/{os.getenv('DB_NAME', 'appdb')}"
-            ),
-            conn_max_age=600,
-            ssl_require=False,
-        )
-    }
+DATABASE_URL = os.getenv('DATABASE_URL')
 
+if DATABASE_URL:
+    DATABASES = {
+        # dj_database_url.parse reads the string explicitly to resolve host translation bugs
+        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
+    }
+    # Enforce SSL requirement since Render PostgreSQL rejects unencrypted traffic
+    DATABASES['default']['OPTIONS'] = {'sslmode': 'require'}
+else:
+    # Direct local fallback when running on your machine (without needing DB_ environment variables)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'postgres',
+            'USER': 'postgres',
+            'PASSWORD': 'postgres',
+            'HOST': 'db',
+            'PORT': '5432',
+        }
+    }
 
 
 
