@@ -99,22 +99,25 @@ db_env_string = os.getenv('DATABASE_URL') or os.getenv('Database_URL')
 # 2. Check if a valid production connection string was found
 if db_env_string:
     DATABASES = {
-        'default': dj_database_url.parse(db_env_string, conn_max_age=600)
+        'default': dj_database_url.parse(
+            db_env_string, 
+            conn_max_age=600,
+            # Disable SSL for private internal Railway connections, enable for external
+            ssl_require=False if 'railway.internal' in db_env_string else True
+        )
     }
-    DATABASES['default']['OPTIONS'] = {'sslmode': 'require'}
 else:
-    # Direct local fallback when running on your machine (without needing DB_ environment variables)
+    # Uses environment variables set locally or in Railway, falling back to 127.0.0.1
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('DB_NAME', 'postgres'),
-            'USER': os.getenv('DB_USER', 'postgres'),
-            'PASSWORD': os.getenv('DB_PASSWORD', 'postgres'),
-            'HOST': os.getenv('DB_HOST', 'db'),
+            'NAME': os.getenv('DB_NAME', 'appdb'),
+            'USER': os.getenv('DB_USER', 'adminuser'),
+            'PASSWORD': os.getenv('DB_PASSWORD', '556190'),
+            'HOST': os.getenv('DB_HOST', '127.0.0.1'),
             'PORT': os.getenv('DB_PORT', '5432'),
         }
     }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
