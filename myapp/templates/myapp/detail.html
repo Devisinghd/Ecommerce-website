@@ -4,7 +4,12 @@
 <section class="page-shell">
   <div class="detail-grid">
     <div class="panel detail-media">
-      <img src="{{ product.image.url }}" alt="{{ product.name }}" />
+      {% load static %}
+      {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.name }}" onerror="this.onerror=null;this.src='https://via.placeholder.com/900x600?text=No+Image';" />
+      {% else %}
+        <img src="https://via.placeholder.com/900x600?text=No+Image" alt="No image available" />
+      {% endif %}
     </div>
     <div class="panel detail-panel">
       <p class="badge">In stock</p>
