@@ -73,12 +73,20 @@ def checkout(request):
         for item in checkout_items
     ]
 
-    selected_address_id = request.POST.get('selected_address_id') if request.method == 'POST' else None
-    selected_address = None
-    if addresses and selected_address_id:
-        selected_address = addresses.filter(id=selected_address_id).first()
-    elif request.method != 'POST' and selected_address:
-        selected_address_id = str(selected_address.id)
+    # Determine selected address id and object.
+    selected_address_id = None
+    # Keep the default selected_address (addresses.first()) unless POST overrides it
+    if request.method == 'POST':
+        selected_address_id = request.POST.get('selected_address_id')
+        if addresses and selected_address_id:
+            selected_address = addresses.filter(id=selected_address_id).first()
+        else:
+            # if user POSTed but provided no/invalid address, keep selected_address None
+            selected_address = None
+    else:
+        # for GET, ensure selected_address_id reflects the default selected_address
+        if selected_address:
+            selected_address_id = str(selected_address.id)
 
     if request.method == 'POST':
         if not checkout_items:
