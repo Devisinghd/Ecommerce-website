@@ -18,15 +18,25 @@ class Cart():
     def __iter__(self):
         product_ids = self.cart.keys()
         products = Products.objects.filter(id__in=product_ids)
-        cart = self.cart.copy()
+
+        # shallow copy of the outer dict; inner dicts must be copied to avoid
+        # mutating session-stored objects. Otherwise converting price to
+        # Decimal here will make session contain Decimal objects which are
+        # not JSON serializable and will break session.save().
+        cart = {k: v.copy() for k, v in self.cart.items()}
 
         for product in products:
-            cart[str(product.id)]['product']=product
+            if str(product.id) in cart:
+                cart[str(product.id)]['product'] = product
 
         for item in cart.values():
-            item['price']=Decimal(item['price'])
-            item['qty']=Decimal(item['qty'])
-            item['total']=item['price']*item['qty']
+            # ensure numeric fields are proper types for display/calculation
+            item['price'] = Decimal(item['price'])
+            try:
+                item['qty'] = int(item['qty'])
+            except Exception:
+                item['qty'] = int(Decimal(str(item.get('qty', 0))))
+            item['total'] = item['price'] * Decimal(item['qty'])
             yield item
 
     def get_total_price(self):
