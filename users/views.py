@@ -1,3 +1,5 @@
+import logging
+
 from django.shortcuts import redirect, render
 from .form import CreateUserForm , UserUpdateForm
 from django.template.loader import render_to_string
@@ -10,6 +12,8 @@ from .form import LoginForm
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
+
+logger = logging.getLogger(__name__)
 # Create your views here.
 
 def register(request):
@@ -34,8 +38,18 @@ def register(request):
             })
             plain_message = f"Hi {user.username}, please verify your email by visiting: {absolute_url}"
             # send HTML email (html_message) with a simple plain-text fallback
-            user.email_user(subject=subject, message=plain_message, html_message=html_message)
-            return redirect('email-verification-sent')
+            try:
+                user.email_user(
+                    subject=subject,
+                    message=plain_message,
+                    html_message=html_message,
+                )
+                return redirect('email-verification-sent')
+            except Exception as exc:
+                logger.exception('Failed to send verification email for user %s.', user.username)
+                user.is_active = True
+                user.save()
+                return redirect('login')
             
     return render(request,'users/register.html', {'form': form})
 

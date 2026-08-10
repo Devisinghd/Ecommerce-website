@@ -95,29 +95,44 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 db_env_string = os.getenv('DATABASE_URL') or os.getenv('Database_URL')
+use_sqlite = os.getenv('USE_SQLITE', 'False').lower() in ('true', '1', 'yes')
 
-# 2. Check if a valid production connection string was found
-if db_env_string:
+if use_sqlite:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+elif db_env_string:
     DATABASES = {
         'default': dj_database_url.parse(
-            db_env_string, 
+            db_env_string,
             conn_max_age=600,
             # Disable SSL for private internal Railway connections, enable for external
             ssl_require=False if 'railway.internal' in db_env_string else True
         )
     }
 else:
-    # Uses environment variables set locally or in Railway, falling back to 127.0.0.1
+    # Default deployment fallback: use SQLite when no DATABASE_URL is provided.
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('DB_NAME', 'appdb'),
-            'USER': os.getenv('DB_USER', 'adminuser'),
-            'PASSWORD': os.getenv('DB_PASSWORD', '556190'),
-            'HOST': os.getenv('DB_HOST', '127.0.0.1'),
-            'PORT': os.getenv('DB_PORT', '5432'),
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
+
+# Local PostgreSQL development settings
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.getenv('DB_NAME', 'postgres'),
+#         'USER': os.getenv('DB_USER', 'postgres'),
+#         'PASSWORD': os.getenv('DB_PASSWORD', 'postgres'),
+#         'HOST': os.getenv('DB_HOST', 'postgres'),
+#         'PORT': os.getenv('DB_PORT', '5432'),
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -177,11 +192,17 @@ EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True').lower() in ('true', '1', 'yes')
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
-EMAIL_BACKEND = (
-    'django.core.mail.backends.console.EmailBackend'
-    if DEBUG
-    else 'django.core.mail.backends.smtp.EmailBackend'
-)
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', '')
+
+if not EMAIL_BACKEND:
+    if DEBUG:
+        EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    elif EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
+        EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    else:
+        # Fallback when SMTP credentials are not configured in production.
+        # This avoids a registration crash while still allowing the app to run.
+        EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 CACHES = {
     'default': {
