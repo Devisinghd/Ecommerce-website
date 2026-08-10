@@ -193,6 +193,7 @@ EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True').lower() in ('true', '1', 'yes
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', '')
+EMAIL_VERIFICATION = os.getenv('EMAIL_VERIFICATION', 'False').lower() in ('true', '1', 'yes')
 
 if not EMAIL_BACKEND:
     if DEBUG:
@@ -200,8 +201,6 @@ if not EMAIL_BACKEND:
     elif EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
         EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     else:
-        # Fallback when SMTP credentials are not configured in production.
-        # This avoids a registration crash while still allowing the app to run.
         EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 CACHES = {

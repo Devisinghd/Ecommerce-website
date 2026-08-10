@@ -1,5 +1,7 @@
 import logging
 
+from django.conf import settings
+from django.contrib import messages
 from django.shortcuts import redirect, render
 from .form import CreateUserForm , UserUpdateForm
 from django.template.loader import render_to_string
@@ -23,9 +25,16 @@ def register(request):
     if request.method == 'POST':
         form = CreateUserForm(request.POST or None)
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=False)
+            if not settings.EMAIL_VERIFICATION:
+                user.is_active = True
+                user.save()
+                messages.success(request, 'Account created successfully. You may now log in.')
+                return redirect('login')
+
             user.is_active = False
             user.save()
+
             # email verification logic
             subject = 'Verify your email to activate account'
             uid = urlsafe_base64_encode(force_bytes(user.pk))
@@ -37,20 +46,22 @@ def register(request):
                 'verification_link': absolute_url,
             })
             plain_message = f"Hi {user.username}, please verify your email by visiting: {absolute_url}"
-            # send HTML email (html_message) with a simple plain-text fallback
+
             try:
                 user.email_user(
                     subject=subject,
                     message=plain_message,
                     html_message=html_message,
                 )
+                messages.success(request, 'Account created successfully. Check your email to activate the account.')
                 return redirect('email-verification-sent')
-            except Exception as exc:
+            except Exception:
                 logger.exception('Failed to send verification email for user %s.', user.username)
                 user.is_active = True
                 user.save()
+                messages.warning(request, 'Account created, but email could not be sent. You can log in now.')
                 return redirect('login')
-            
+
     return render(request,'users/register.html', {'form': form})
 
 

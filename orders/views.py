@@ -73,6 +73,30 @@ def checkout(request):
         for item in checkout_items
     ]
 
+    selected_address_id = request.POST.get('selected_address_id') if request.method == 'POST' else None
+    selected_address = None
+    if addresses and selected_address_id:
+        selected_address = addresses.filter(id=selected_address_id).first()
+    elif request.method != 'POST' and selected_address:
+        selected_address_id = str(selected_address.id)
+
+    if request.method == 'POST':
+        if not checkout_items:
+            messages.warning(request, 'No items were found in your cart. Please add items before placing an order.')
+            return redirect('checkout_warning')
+
+        if addresses and not selected_address:
+            messages.error(request, 'Please select a valid delivery address before placing your order.')
+            return redirect('checkout')
+
+        order = Order.objects.create(user=request.user, total_amount=total_amount)
+        for item in checkout_items:
+            OrderItem.objects.create(order=order, product=item['product'], quantity=item['qty'])
+
+        request.session.pop('checkout_items', None)
+        messages.success(request, 'Your order has been placed successfully.')
+        return redirect('order-success')
+
     return render(
         request,
         'orders/checkout.html',
@@ -81,6 +105,7 @@ def checkout(request):
             'address': selected_address,
             'checkout_items': checkout_items,
             'total_amount': total_amount,
+            'selected_address_id': selected_address_id,
         },
     )
 
@@ -89,36 +114,35 @@ def checkout(request):
 def place_order(request):
     if request.method == 'POST':
         selected_items = request.session.get('checkout_items') or []
+        selected_address_id = request.POST.get('selected_address_id')
+        addresses = Address.objects.filter(user=request.user).order_by('-id')
+        selected_address = addresses.filter(id=selected_address_id).first() if selected_address_id else None
+
+        if not selected_items:
+            return JsonResponse({'error': 'No items were found in your cart.'}, status=400)
+
+        if addresses and not selected_address:
+            return JsonResponse({'error': 'Please select a valid delivery address.'}, status=400)
+
         total_amount = Decimal('0.00')
         order_items = []
 
-        if selected_items:
-            for item_data in selected_items:
-                product = Products.objects.get(id=item_data['product_id'])
-                quantity = int(item_data['quantity'])
-                unit_price = Decimal(str(item_data['unit_price']))
-                total_amount += unit_price * quantity
-                order_items.append((product, quantity))
-        else:
-            cart = Cart(request)
-            for item in cart:
-                product = item['product']
-                quantity = int(item['qty'])
-                unit_price = Decimal(str(item['price']))
-                total_amount += unit_price * quantity
-                order_items.append((product, quantity))
+        for item_data in selected_items:
+            product = Products.objects.get(id=item_data['product_id'])
+            quantity = int(item_data['quantity'])
+            unit_price = Decimal(str(item_data['unit_price']))
+            total_amount += unit_price * quantity
+            order_items.append((product, quantity))
 
-        if request.user.is_authenticated:
-            order = Order.objects.create(user=request.user, total_amount=total_amount)
-        else:
-            order = Order.objects.create(total_amount=total_amount)
+        order = Order.objects.create(user=request.user, total_amount=total_amount)
 
         for product, quantity in order_items:
             OrderItem.objects.create(order=order, product=product, quantity=quantity)
 
         request.session.pop('checkout_items', None)
+        return JsonResponse({'message': 'order placed successfully'})
 
-    return JsonResponse({'message': 'order placed successfully'})
+    return JsonResponse({'error': 'Invalid method'}, status=405)
 
 
 def order_success(request):
