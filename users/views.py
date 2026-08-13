@@ -35,19 +35,20 @@ def register(request):
             user.is_active = False
             user.save()
 
-            # email verification logic
-            subject = 'Verify your email to activate account'
-            uid = urlsafe_base64_encode(force_bytes(user.pk))
-            token = account_activation_token.make_token(user)
-            verification_path = reverse('email-verification', kwargs={'uidb64': uid, 'token': token})
-            absolute_url = request.build_absolute_uri(verification_path)
-            html_message = render_to_string('users/email-verification.html', {
-                'user': user,
-                'verification_link': absolute_url,
-            })
-            plain_message = f"Hi {user.username}, please verify your email by visiting: {absolute_url}"
-
+            # email verification logic (render + send). Wrap entire block so
+            # template rendering or SMTP errors don't bubble up as 500s.
             try:
+                subject = 'Verify your email to activate account'
+                uid = urlsafe_base64_encode(force_bytes(user.pk))
+                token = account_activation_token.make_token(user)
+                verification_path = reverse('email-verification', kwargs={'uidb64': uid, 'token': token})
+                absolute_url = request.build_absolute_uri(verification_path)
+                html_message = render_to_string('users/email-verification.html', {
+                    'user': user,
+                    'verification_link': absolute_url,
+                })
+                plain_message = f"Hi {user.username}, please verify your email by visiting: {absolute_url}"
+
                 user.email_user(
                     subject=subject,
                     message=plain_message,
@@ -56,10 +57,12 @@ def register(request):
                 messages.success(request, 'Account created successfully. Check your email to activate the account.')
                 return redirect('email-verification-sent')
             except Exception:
-                logger.exception('Failed to send verification email for user %s.', user.username)
+                # Log the full exception for debugging and fall back to
+                # activating the account so the user can proceed.
+                logger.exception('Failed to render/send verification email for user %s.', user.username)
                 user.is_active = True
                 user.save()
-                messages.warning(request, 'Account created, but email could not be sent. You can log in now.')
+                messages.warning(request, 'Account created, but the verification email could not be sent. You can log in now.')
                 return redirect('login')
 
     return render(request,'users/register.html', {'form': form})
