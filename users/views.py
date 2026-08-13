@@ -1,4 +1,5 @@
 import logging
+import threading
 
 from django.conf import settings
 from django.contrib import messages
@@ -49,11 +50,27 @@ def register(request):
                 })
                 plain_message = f"Hi {user.username}, please verify your email by visiting: {absolute_url}"
 
-                user.email_user(
-                    subject=subject,
-                    message=plain_message,
-                    html_message=html_message,
-                )
+                def _send_verification_email(subject, plain_message, html_message, user):
+                    try:
+                        user.email_user(
+                            subject=subject,
+                            message=plain_message,
+                            html_message=html_message,
+                            fail_silently=True,
+                        )
+                    except Exception:
+                        logger.exception('Background email send failed for user %s', user.username)
+
+                try:
+                    thread = threading.Thread(
+                        target=_send_verification_email,
+                        args=(subject, plain_message, html_message, user),
+                        daemon=True,
+                    )
+                    thread.start()
+                except Exception:
+                    logger.exception('Failed to start background thread for sending email for user %s', user.username)
+
                 messages.success(request, 'Account created successfully. Check your email to activate the account.')
                 return redirect('email-verification-sent')
             except Exception:
