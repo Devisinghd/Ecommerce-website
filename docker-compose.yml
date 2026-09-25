@@ -1,22 +1,5 @@
 
 services:
-  db:
-    image: postgres:15-alpine
-    container_name: ecommerce_db
-    environment:
-      POSTGRES_DB: ${DB_NAME:-appdb}
-      POSTGRES_USER: ${DB_USER:-adminuser}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-556190}
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-adminuser} -d ${DB_NAME:-appdb}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   web:
     image: devisingh/ecommerce-web:latest
     build: .
@@ -30,16 +13,5 @@ services:
       - DEBUG=False
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-change-me}
       - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost,127.0.0.1}
-      - DB_NAME=${DB_NAME:-appdb}
-      - DB_USER=${DB_USER:-adminuser}
-      - DB_PASSWORD=${DB_PASSWORD:-556190}
-      - DB_HOST=${DB_HOST:-db}
-      - DB_PORT=${DB_PORT:-5432}
-    depends_on:
-      db:
-        condition: service_healthy
     stdin_open: true
     tty: true
-
-volumes:
-  postgres_data:
