@@ -49,15 +49,10 @@
         <p style="margin-bottom: 16px; font-size: 14px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.08em;">Welcome to ShopMate</p>
         <h1 style="margin-top: 0; font-size: 28px; line-height: 1.15; color: #111827;">Verify your email</h1>
         <p style="font-size: 16px; line-height: 1.7; color: #4b5563; margin-top: 16px;">
-          Hi {{ user.username }}, thanks for signing up! Click the button below to confirm your email address and activate your account.
+          Hi {{ user.username }}, thanks for signing up! Enter this code on the verification page to activate your account.
         </p>
-        <p style="margin: 24px 0;">
-          <a class="button" href="{{ verification_link }}">Verify Email Address</a>
-        </p>
-        <p style="font-size: 16px; line-height: 1.7; color: #4b5563;">
-          If the button does not work, paste this link into your browser:
-        </p>
-        <p class="muted-link" style="margin-top: 12px; font-size: 14px; line-height: 1.6;">{{ verification_link }}</p>
+        <p style="margin: 24px 0; font-size: 36px; font-weight: 700; letter-spacing: 0.2em; color: #2563eb;">{{ verification_code }}</p>
+        <p style="font-size: 14px; line-height: 1.6; color: #6b7280;">This code expires in {{ expiry_minutes }} minutes.</p>
         <div class="footer">
           <p>If you did not request this email, you can safely ignore it.</p>
           <p>Thanks,<br />The ShopMate Team</p>

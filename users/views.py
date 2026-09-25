@@ -1,16 +1,15 @@
 import logging
-import threading
+import secrets
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.hashers import check_password, make_password
 from django.shortcuts import redirect, render
-from .form import CreateUserForm , UserUpdateForm
+from .form import CreateUserForm, EmailVerificationForm, UserUpdateForm
 from django.template.loader import render_to_string
-from django.urls import reverse
-from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
-from django.utils.encoding import force_bytes , force_str 
-from .token import account_activation_token
 from django.contrib.auth.models import User
+from django.db import transaction
+from .models import EmailVerificationCode
 from .form import LoginForm
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
@@ -36,71 +35,68 @@ def register(request):
             user.is_active = False
             user.save()
 
-            # email verification logic (render + send). Wrap entire block so
-            # template rendering or SMTP errors don't bubble up as 500s.
             try:
-                subject = 'Verify your email to activate account'
-                uid = urlsafe_base64_encode(force_bytes(user.pk))
-                token = account_activation_token.make_token(user)
-                verification_path = reverse('email-verification', kwargs={'uidb64': uid, 'token': token})
-                absolute_url = request.build_absolute_uri(verification_path)
+                verification_code = f'{secrets.randbelow(1_000_000):06d}'
+                with transaction.atomic():
+                    EmailVerificationCode.objects.update_or_create(
+                        user=user,
+                        defaults={
+                            'code_hash': make_password(verification_code),
+                            'expires_at': EmailVerificationCode.expiry_time(settings.EMAIL_OTP_EXPIRY_MINUTES),
+                        },
+                    )
+
                 html_message = render_to_string('users/email-verification.html', {
                     'user': user,
-                    'verification_link': absolute_url,
+                    'verification_code': verification_code,
+                    'expiry_minutes': settings.EMAIL_OTP_EXPIRY_MINUTES,
                 })
-                plain_message = f"Hi {user.username}, please verify your email by visiting: {absolute_url}"
+                plain_message = (
+                    f'Hi {user.username}, your ShopFusion email verification code is '
+                    f'{verification_code}. It expires in {settings.EMAIL_OTP_EXPIRY_MINUTES} minutes.'
+                )
+                user.email_user(
+                    subject='Your ShopFusion email verification code',
+                    message=plain_message,
+                    html_message=html_message,
+                    fail_silently=False,
+                )
 
-                def _send_verification_email(subject, plain_message, html_message, user):
-                    try:
-                        user.email_user(
-                            subject=subject,
-                            message=plain_message,
-                            html_message=html_message,
-                            fail_silently=True,
-                        )
-                    except Exception:
-                        logger.exception('Background email send failed for user %s', user.username)
-
-                try:
-                    thread = threading.Thread(
-                        target=_send_verification_email,
-                        args=(subject, plain_message, html_message, user),
-                        daemon=True,
-                    )
-                    thread.start()
-                except Exception:
-                    logger.exception('Failed to start background thread for sending email for user %s', user.username)
-
+                request.session['pending_verification_user_id'] = user.pk
                 messages.success(request, 'Account created successfully. Check your email to activate the account.')
                 return redirect('email-verification-sent')
             except Exception:
-                # Log the full exception for debugging and fall back to
-                # activating the account so the user can proceed.
                 logger.exception('Failed to render/send verification email for user %s.', user.username)
-                user.is_active = True
-                user.save()
-                messages.warning(request, 'Account created, but the verification email could not be sent. You can log in now.')
-                return redirect('login')
+                messages.error(request, 'We could not send the verification code. Please try again later.')
+                return redirect('register')
 
     return render(request,'users/register.html', {'form': form})
 
 
-def email_verification(request, uidb64, token):
-    try:
-        unique_id = force_str(urlsafe_base64_decode(uidb64))
-        user = User.objects.get(pk=unique_id)
-    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-        user = None
-
-    if user is not None and account_activation_token.check_token(user, token):
-        user.is_active = True
-        user.save()
-        return redirect('email-verification-success')
-    else:
+def email_verification(request):
+    user_id = request.session.get('pending_verification_user_id')
+    user = User.objects.filter(pk=user_id, is_active=False).first()
+    if user is None:
         return redirect('email-verification-failed')
 
+    form = EmailVerificationForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        verification = EmailVerificationCode.objects.filter(user=user).first()
+        if verification and not verification.is_expired() and check_password(form.cleaned_data['code'], verification.code_hash):
+            user.is_active = True
+            user.save(update_fields=['is_active'])
+            verification.delete()
+            request.session.pop('pending_verification_user_id', None)
+            return redirect('email-verification-success')
+        form.add_error('code', 'That code is invalid or expired.')
+
+    return render(request, 'users/email-verification-sent.html', {
+        'form': form,
+        'expiry_minutes': settings.EMAIL_OTP_EXPIRY_MINUTES,
+    })
+
 def email_verification_sent(request):
-    return render(request,'users/email-verification-sent.html')
+    return email_verification(request)
 
 def email_verification_success(request):
     return render(request,'users/email-verification-success.html')

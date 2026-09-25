@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 from dotenv import load_dotenv
 import os
-import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -94,33 +93,13 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-db_env_string = os.getenv('DATABASE_URL') or os.getenv('Database_URL')
-use_sqlite = os.getenv('USE_SQLITE', 'False').lower() in ('true', '1', 'yes')
-
-if use_sqlite:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
+# Use the local SQLite file for development and Docker.
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
-elif db_env_string:
-    DATABASES = {
-        'default': dj_database_url.parse(
-            db_env_string,
-            conn_max_age=600,
-            # Disable SSL for private internal Railway connections, enable for external
-            ssl_require=False if 'railway.internal' in db_env_string else True
-        )
-    }
-else:
-    # Default deployment fallback: use SQLite when no DATABASE_URL is provided.
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+}
 
 # Local PostgreSQL development settings
 # DATABASES = {
@@ -193,7 +172,8 @@ EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True').lower() in ('true', '1', 'yes
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', '')
-EMAIL_VERIFICATION = os.getenv('EMAIL_VERIFICATION', 'False').lower() in ('true', '1', 'yes')
+EMAIL_VERIFICATION = os.getenv('EMAIL_VERIFICATION', 'True').lower() in ('true', '1', 'yes')
+EMAIL_OTP_EXPIRY_MINUTES = int(os.getenv('EMAIL_OTP_EXPIRY_MINUTES', '10'))
 
 if not EMAIL_BACKEND:
     if DEBUG:

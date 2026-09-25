@@ -31,6 +31,26 @@ class LoginForm(AuthenticationForm):
         }
         for field in self.fields.values():
             field.widget.attrs.update(widget_attrs)
+
+
+class EmailVerificationForm(forms.Form):
+    code = forms.CharField(
+        label='Verification code',
+        min_length=6,
+        max_length=6,
+        strip=True,
+        widget=forms.TextInput(attrs={
+            'inputmode': 'numeric',
+            'autocomplete': 'one-time-code',
+            'placeholder': 'Enter 6-digit code',
+        }),
+    )
+
+    def clean_code(self):
+        code = self.cleaned_data['code']
+        if not code.isdigit():
+            raise forms.ValidationError('Enter the six-digit code from your email.')
+        return code
             
 
 
