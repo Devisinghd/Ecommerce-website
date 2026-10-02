@@ -3,6 +3,7 @@
 
 {% block body %}
 <div class="page-shell">
+  <div hidden>{% csrf_token %}</div>
   <div class="section-head">
     <div>
       <p class="badge">Your cart</p>
@@ -29,7 +30,7 @@
           <tr style="border-top:1px solid var(--border);" data-product-id="{{ item.product.id }}">
             <td style="padding:18px 20px;">
               <div style="display:flex; align-items:center; gap:14px;">
-                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" style="width:68px; height:68px; object-fit:cover; border-radius:16px; border:1px solid var(--border);" />
+                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" onerror="this.onerror=null;this.src='{% static 'myapp/product-placeholder.svg' %}';" style="width:68px; height:68px; object-fit:cover; border-radius:16px; border:1px solid var(--border);" />
                 <div>
                   <a href="{{ item.product.get_absolute_url }}" style="font-weight:700; color:var(--text);">{{ item.product.name }}</a>
                   <p style="margin:6px 0 0; color:var(--muted); font-size:0.92rem;">{{ item.product.description|truncatechars:45 }}</p>
@@ -80,60 +81,31 @@
 </div>
 
 <script>
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-
-    $(document).on('click','.delete',function(e){
-        e.preventDefault();
-        const csrftoken = getCookie('csrftoken');
-        $.ajax({
-            type: 'POST',
-            url: '{% url "cart:cart_delete" %}',
-            data: {
-                csrfmiddlewaretoken: csrftoken,
-                action:'post',
-                product_id: $(this).data('index'),
-            },
-            success: function(json) {
-                location.reload();
-                document.getElementById('cart-qty').textContent = json.qty;
-                document.getElementById('total').textContent = json.cart_total;
-            }
-        });
+  async function postCartAction(url, data) {
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const body = new URLSearchParams({ ...data, csrfmiddlewaretoken: csrfToken });
+    const response = await fetch(url, {
+      method: 'POST',
+      body: body,
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
     });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || 'Cart update failed.');
+    window.location.reload();
+  }
 
-    $(document).on('click','.update',function(e){
-        e.preventDefault();
-        const csrftoken = getCookie('csrftoken');
-        const productId = $(this).data('index');
-        const quantity = $(`.quantity-select[data-product-id="${productId}"]`).val();
-        $.ajax({
-            type: 'POST',
-            url: '{% url "cart:cart_update" %}',
-            data: {
-                csrfmiddlewaretoken: csrftoken,
-                action:'post',
-                product_id: productId,
-                product_quantity: quantity,
-            },
-            success: function(json) {
-                location.reload();
-                document.getElementById('cart-qty').textContent = json.qty;
-                document.getElementById('total').textContent = json.cart_total;
-            }
-        });
+  document.querySelectorAll('.update').forEach(function (button) {
+    button.addEventListener('click', function () {
+      const productId = this.dataset.index;
+      const quantity = document.querySelector('.quantity-select[data-product-id="' + productId + '"]').value;
+      postCartAction('{% url "cart:cart_update" %}', { product_id: productId, product_quantity: quantity });
     });
+  });
+
+  document.querySelectorAll('.delete').forEach(function (button) {
+    button.addEventListener('click', function () {
+      postCartAction('{% url "cart:cart_delete" %}', { product_id: this.dataset.index });
+    });
+  });
 </script>
 {% endblock %}
