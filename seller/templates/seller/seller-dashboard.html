@@ -1,4 +1,5 @@
 {% extends 'myapp/base.html' %}
+{% load static %}
 
 {% block body %}
 <div class="page-shell">
@@ -16,7 +17,7 @@
     {% for item in page_obj %}
     <article class="product-card">
       <div class="product-media">
-        <img src="{{ item.image.url }}" alt="{{ item.name }}" />
+        <img src="{{ item.image.url }}" alt="{{ item.name }}" onerror="this.onerror=null;this.src='{% static 'myapp/product-placeholder.svg' %}';" />
       </div>
       <div class="product-body">
         <div class="product-meta">

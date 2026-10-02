@@ -16,8 +16,9 @@ def seller_dashboard(request):
     except Products.DoesNotExist:
         return redirect('login')
 
+@login_required
 def product_detail(request, slug):
-    product = Products.objects.get(slug=slug)
+    product = get_object_or_404(Products, slug=slug, seller=request.user)
     return render(request,'seller/seller-product-detail.html',{'product':product})
 
 @login_required  
@@ -37,7 +38,7 @@ def product_create(request):
 
 @login_required  
 def product_update(request,slug): 
-    product = get_object_or_404(Products,slug=slug)
+    product = get_object_or_404(Products, slug=slug, seller=request.user)
     if request.method == 'POST':
         form = ProductCreateForm(request.POST, request.FILES,instance=product)
         if form.is_valid():
@@ -52,7 +53,7 @@ def product_update(request,slug):
 
 @login_required 
 def product_delete(request,slug):
-    product = get_object_or_404(Products,slug=slug)
+    product = get_object_or_404(Products, slug=slug, seller=request.user)
     if request.method == 'POST':
         product.delete()
         return redirect('seller-dashboard')
