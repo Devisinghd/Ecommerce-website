@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from myapp.models import Products
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
+from django.db import transaction
 
 
 @login_required
@@ -23,6 +24,11 @@ def add_address(request):
     else:
         form = AddressForm()
     return render(request, 'orders/add_address.html', {'form': form})
+
+@login_required
+def address_list(request):
+    addresses = Address.objects.filter(user=request.user).order_by('-id')
+    return render(request, 'orders/address_list.html', {'addresses': addresses})
 
 
 @login_required
@@ -41,8 +47,10 @@ def checkout(request):
 
     if product_id:
         try:
-            product = Products.objects.get(id=product_id)
+            product = Products.objects.get(id=product_id, active=True)
             qty = int(quantity or 1)
+            if qty < 1 or qty > product.stock:
+                raise ValueError('Quantity is outside available stock')
             unit_price = Decimal(str(product.price))
             checkout_items.append({
                 'product': product,
@@ -50,7 +58,7 @@ def checkout(request):
                 'price': unit_price,
                 'total': unit_price * qty,
             })
-        except Products.DoesNotExist:
+        except (Products.DoesNotExist, TypeError, ValueError):
             checkout_items = []
     else:
         cart = Cart(request)
@@ -93,15 +101,27 @@ def checkout(request):
             messages.warning(request, 'No items were found in your cart. Please add items before placing an order.')
             return redirect('checkout_warning')
 
-        if addresses and not selected_address:
+        if not addresses:
+            messages.error(request, 'Add a delivery address before placing your order.')
+            return redirect('add_address')
+
+        if not selected_address:
             messages.error(request, 'Please select a valid delivery address before placing your order.')
             return redirect('checkout')
 
-        order = Order.objects.create(user=request.user, total_amount=total_amount)
-        for item in checkout_items:
-            OrderItem.objects.create(order=order, product=item['product'], quantity=item['qty'])
+        with transaction.atomic():
+            order = Order.objects.create(
+                user=request.user,
+                total_amount=total_amount,
+                delivery_address=selected_address,
+            )
+            for item in checkout_items:
+                OrderItem.objects.create(order=order, product=item['product'], quantity=item['qty'])
 
         request.session.pop('checkout_items', None)
+        if not product_id:
+            request.session['cart'] = {}
+            request.session.modified = True
         messages.success(request, 'Your order has been placed successfully.')
         return redirect('order-success')
 
@@ -129,7 +149,7 @@ def place_order(request):
         if not selected_items:
             return JsonResponse({'error': 'No items were found in your cart.'}, status=400)
 
-        if addresses and not selected_address:
+        if not selected_address:
             return JsonResponse({'error': 'Please select a valid delivery address.'}, status=400)
 
         total_amount = Decimal('0.00')
@@ -142,12 +162,18 @@ def place_order(request):
             total_amount += unit_price * quantity
             order_items.append((product, quantity))
 
-        order = Order.objects.create(user=request.user, total_amount=total_amount)
-
-        for product, quantity in order_items:
-            OrderItem.objects.create(order=order, product=product, quantity=quantity)
+        with transaction.atomic():
+            order = Order.objects.create(
+                user=request.user,
+                total_amount=total_amount,
+                delivery_address=selected_address,
+            )
+            for product, quantity in order_items:
+                OrderItem.objects.create(order=order, product=product, quantity=quantity)
 
         request.session.pop('checkout_items', None)
+        request.session['cart'] = {}
+        request.session.modified = True
         return JsonResponse({'message': 'order placed successfully'})
 
     return JsonResponse({'error': 'Invalid method'}, status=405)
@@ -160,8 +186,9 @@ def order_success(request):
 def order_failed(request):
     return render(request,'orders/order-failed.html')
 
+@login_required
 def orders_view(request):
-    order = OrderItem.objects.filter(order__user=request.user)
+    order = OrderItem.objects.filter(order__user=request.user).select_related('order', 'product')
     return render(request,'orders/orderlist.html',{'order':order})
 
 def checkout_warning(request):

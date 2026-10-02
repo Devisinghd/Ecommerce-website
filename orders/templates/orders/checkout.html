@@ -16,7 +16,7 @@
             <p style="font-weight:700; color:var(--text);">Delivery address</p>
             <p style="margin:4px 0 0; color:var(--muted);">Pick one of your saved addresses or add a new one.</p>
           </div>
-          <a href="{% url 'add_address' %}" class="btn-outline">Add new address</a>
+          <a href="{% url 'add_address' %}" class="btn-outline">Add a new address</a>
         </div>
 
         {% if addresses %}
@@ -32,7 +32,7 @@
                 <p style="margin:2px 0 0; color:var(--muted);">{{ saved_address.city }}, {{ saved_address.state }} - {{ saved_address.postal_code }}</p>
                 <p style="margin:2px 0 0; color:var(--muted);">{{ saved_address.country }}</p>
               </div>
-              <span class="btn-outline" style="display:inline-flex; align-items:center; justify-content:center;">Select</span>
+              <span class="btn-outline" style="display:inline-flex; align-items:center; justify-content:center;">Choose this address</span>
             </div>
           </label>
           {% endfor %}
@@ -108,33 +108,17 @@
 {% endblock %}
 {% block scripts %}
 <script>
-    $('.choose-address-btn').on('click', function() {
-        const addressId = $(this).data('id');
-        $('#selected-address-id').val(addressId);
-        $('.address-card').css('border-color', 'var(--border)').css('background', '#fff');
-        $(this).closest('.address-card').css('border-color', 'var(--brand)').css('background', '#eff6ff');
+  document.querySelectorAll('input[name="selected_address_id"]').forEach(function (radio) {
+    radio.addEventListener('change', function () {
+        document.getElementById('selected-address-id').value = this.value;
+    document.querySelectorAll('.address-card').forEach(function (card) {
+      card.style.borderColor = 'var(--line)';
+      card.style.background = 'rgba(255,255,255,.02)';
     });
-
-    $(document).on('submit', '#checkout-form', function(e) {
-        e.preventDefault();
-        const $form = $(this);
-        const csrftoken = $form.find('input[name="csrfmiddlewaretoken"]').val();
-
-        $.ajax({
-            type: 'POST',
-            url: "{% url 'place-order' %}",
-            data: {
-                action: 'post',
-                selected_address_id: $('#selected-address-id').val(),
-                csrfmiddlewaretoken: csrftoken,
-            },
-            success: function(json){
-                window.location.replace("{% url 'order-success' %}")
-            },
-            error: function(xhr, status, error){
-               window.location.replace("{% url 'order-failed' %}")
-            }
-        });
+    const selectedCard = this.closest('.address-card');
+    selectedCard.style.borderColor = 'var(--accent)';
+    selectedCard.style.background = 'rgba(215,176,111,.1)';
+    });
     });
 </script>
 {% endblock %}

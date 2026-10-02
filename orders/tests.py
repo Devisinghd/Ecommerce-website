@@ -2,7 +2,8 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import Address
+from myapp.models import Products
+from .models import Address, Order, OrderItem
 
 
 class OrdersViewTests(TestCase):
@@ -30,6 +31,14 @@ class CheckoutViewTests(TestCase):
             password="strong-pass-123",
         )
         self.client.force_login(self.user)
+        self.product = Products.objects.create(
+            seller=self.user,
+            name='Checkout watch',
+            price=125,
+            description='Test product',
+            image='images/checkout-watch.jpg',
+            stock=5,
+        )
 
     def test_checkout_shows_saved_addresses_and_add_address_prompt(self):
         Address.objects.create(
@@ -56,3 +65,61 @@ class CheckoutViewTests(TestCase):
 
         self.assertContains(response, "No delivery address yet")
         self.assertContains(response, "Add a new address")
+
+    def test_checkout_creates_order_with_address_and_clears_cart(self):
+        address = Address.objects.create(
+            user=self.user,
+            full_name='Jane Doe',
+            phone='9800000000',
+            line1='123 Main Street',
+            line2='',
+            city='Mumbai',
+            state='Maharashtra',
+            postal_code='400001',
+            country='India',
+        )
+        session = self.client.session
+        session['cart'] = {str(self.product.id): {'price': str(self.product.price), 'qty': 2}}
+        session.save()
+
+        response = self.client.post(reverse('checkout'), {'selected_address_id': address.id})
+
+        self.assertRedirects(response, reverse('order-success'))
+        order = Order.objects.get(user=self.user)
+        self.assertEqual(order.delivery_address, address)
+        self.assertEqual(order.total_amount, 250)
+        self.assertEqual(OrderItem.objects.get(order=order).quantity, 2)
+        self.assertEqual(self.client.session.get('cart'), {})
+
+    def test_checkout_rejects_another_users_address(self):
+        Address.objects.create(
+            user=self.user,
+            full_name='Jane Doe',
+            phone='9800000000',
+            line1='123 Main Street',
+            line2='',
+            city='Mumbai',
+            state='Maharashtra',
+            postal_code='400001',
+            country='India',
+        )
+        other_user = get_user_model().objects.create_user(username='other-user', password='test-pass-123')
+        other_address = Address.objects.create(
+            user=other_user,
+            full_name='Other User',
+            phone='9800000001',
+            line1='456 Other Street',
+            line2='',
+            city='Pune',
+            state='Maharashtra',
+            postal_code='411001',
+            country='India',
+        )
+        session = self.client.session
+        session['cart'] = {str(self.product.id): {'price': str(self.product.price), 'qty': 1}}
+        session.save()
+
+        response = self.client.post(reverse('checkout'), {'selected_address_id': other_address.id})
+
+        self.assertRedirects(response, reverse('checkout'))
+        self.assertFalse(Order.objects.filter(user=self.user).exists())
