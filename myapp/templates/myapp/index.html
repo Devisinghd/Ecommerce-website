@@ -1,68 +1,210 @@
 {% extends 'myapp/base.html' %}
-{% load custom_filters %}
-{% block title %}ShopMate · Home{% endblock %}
-{% block body %}
-{% load cache %}
+{% load static %}
+{% block title %}Luxury Watches | ShopFusion{% endblock %}
 
+{% block content %}
 <section class="hero">
-  <div class="hero-inner">
-    <div>
-      <p class="badge" style="background: rgba(255,255,255,0.16); color: #fff; border: 1px solid rgba(255,255,255,0.2);">Today's deal · Premium picks</p>
-      <h1>Shop top-tier essentials with a polished experience.</h1>
-      <p>Browse curated products, enjoy smooth cart interactions, and checkout faster with a sleek marketplace-inspired storefront.</p>
-      <div class="form-actions" style="flex-direction:row; flex-wrap:wrap; margin-top:24px;">
-        <a href="{% url 'cart:cart-overview' %}" class="btn-primary">View cart</a>
-        <a href="{% url 'seller-dashboard' %}" class="btn-outline" style="background: rgba(255,255,255,0.12); color:#fff; border-color: rgba(255,255,255,0.22);">Become a seller</a>
-      </div>
-    </div>
-    <div class="hero-card">
-      <div class="info-grid">
-        <div class="info-pill"><strong>24/7</strong><span>Fast delivery support</span></div>
-        <div class="info-pill"><strong>100%</strong><span>Trusted sellers</span></div>
-        <div class="info-pill" style="grid-column:1 / -1;"><strong>One-click checkout</strong><span>Saved addresses and instant order placement</span></div>
-      </div>
-    </div>
-  </div>
-</section>
+  <div class="container hero-inner">
+    <div class="hero-copy">
+      <span class="eyebrow">Curated essentials</span>
+      <h1>Refined pieces for a sharper everyday life.</h1>
+      <p>
+        Discover premium watches, elevated accessories, and timeless essentials designed to move with your routine.
+      </p>
 
-<section class="content-section">
-  <div class="section-head">
-    <div>
-      <p class="badge">Featured products</p>
-      <h2>Fresh picks for your cart</h2>
-      <p>Curated products with a premium presentation and clear buying flow.</p>
-    </div>
-    <a href="{% url 'checkout' %}" class="nav-link" style="padding:0;">Go to checkout →</a>
-  </div>
-
-  <div class="card-grid">
-    {% for product in page_obj %}
-    <article class="product-card">
-      <div class="product-media">
-        <img src="{{ product.image.url }}" alt="{{ product.name }}" />
+      <div class="hero-actions">
+        <a href="#products" class="btn btn-primary">Shop collection</a>
+        <a href="#categories" class="btn btn-secondary">Explore categories</a>
       </div>
-      <div class="product-body">
-        <a href="{{ product.get_absolute_url }}" class="product-title">{{ product.name }}</a>
-        <p class="product-desc">{{ product.description|truncatechars:75 }}</p>
-        <div class="product-meta">
-          <span class="price">{{ product.price|floatformat:2|currency }}</span>
-          <a href="{{ product.get_absolute_url }}" class="btn-primary" style="padding:10px 14px; font-size:0.88rem;">View</a>
+
+      <div class="hero-metrics">
+        <div>
+          <strong>24K+</strong>
+          <span>happy shoppers</span>
+        </div>
+        <div>
+          <strong>4.9/5</strong>
+          <span>average rating</span>
+        </div>
+        <div>
+          <strong>48h</strong>
+          <span>dispatch time</span>
         </div>
       </div>
-    </article>
-    {% endfor %}
+    </div>
+
+    <div class="hero-visual">
+      <div class="watch-frame">
+        <div class="watch-glow"></div>
+        <img
+          src="https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&w=900&q=80"
+          alt="Luxury watch"
+        />
+      </div>
+      <div class="floating-tag tag-top">Swiss movement</div>
+      <div class="floating-tag tag-bottom">Italian leather</div>
+    </div>
   </div>
 </section>
 
-<div class="content-section" style="padding-top:0;">
-  <div class="section-head" style="margin-bottom:0; justify-content:center;">
-    {% if page_obj.has_previous %}
-      <a href="?page={{ page_obj.previous_page_number }}" class="nav-link">← Prev</a>
-    {% endif %}
-    <span style="color:var(--muted);">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
-    {% if page_obj.has_next %}
-      <a href="?page={{ page_obj.next_page_number }}" class="nav-link">Next →</a>
-    {% endif %}
+<section id="categories" class="categories">
+  <div class="container">
+    <div class="section-heading">
+      <div>
+        <span class="eyebrow">Curated categories</span>
+        <h2>Shop by collection</h2>
+      </div>
+    </div>
+
+    <div class="category-grid">
+      <article class="category-card">
+        <img src="https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?auto=format&fit=crop&w=900&q=80" alt="Dress watches" />
+        <div class="category-overlay">
+          <h3>Dress Watches</h3>
+          <a href="#">Browse</a>
+        </div>
+      </article>
+
+      <article class="category-card">
+        <img src="https://images.unsplash.com/photo-1508057198894-247b23fe5ade?auto=format&fit=crop&w=900&q=80" alt="Sport watches" />
+        <div class="category-overlay">
+          <h3>Sport</h3>
+          <a href="#">Browse</a>
+        </div>
+      </article>
+
+      <article class="category-card">
+        <img src="https://images.unsplash.com/photo-1434056886845-dac89ffe9b56?auto=format&fit=crop&w=900&q=80" alt="Leather goods" />
+        <div class="category-overlay">
+          <h3>Leather Goods</h3>
+          <a href="#">Browse</a>
+        </div>
+      </article>
+
+      <article class="category-card">
+        <img src="https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=900&q=80" alt="Accessories" />
+        <div class="category-overlay">
+          <h3>Accessories</h3>
+          <a href="#">Browse</a>
+        </div>
+      </article>
+    </div>
   </div>
-</div>
+</section>
+
+<section id="products" class="products">
+  <div class="container">
+    <div class="section-heading heading-row">
+      <div>
+        <span class="eyebrow">Trending now</span>
+        <h2>Best sellers</h2>
+      </div>
+      <a href="#" class="text-link">View all</a>
+    </div>
+
+    <div class="product-grid">
+      {% for product in page_obj %}
+      <article class="product-card">
+        <div class="product-media">
+          {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" onerror="this.onerror=null;this.src='{% static 'myapp/product-placeholder.svg' %}';" />
+          {% else %}
+            <img src="{% static 'myapp/product-placeholder.svg' %}" alt="No product image available" />
+          {% endif %}
+          <button class="wishlist-btn" type="button" aria-label="Add to wishlist">♡</button>
+        </div>
+
+        <div class="product-body">
+          <span class="product-tag">Featured</span>
+          <h3>{{ product.name }}</h3>
+
+          <div class="product-meta">
+            <span class="stars">★★★★★</span>
+            <span>4.9</span>
+          </div>
+
+          <div class="product-footer">
+            <span class="price">₹{{ product.price }}</span>
+          </div>
+          <div class="product-footer">
+            <a href="{{ product.get_absolute_url }}" class="btn btn-small btn-secondary">View product</a>
+            <form class="add-to-cart-form" action="{% url 'cart:cart_add' %}" method="post">
+              {% csrf_token %}
+              <input type="hidden" name="product_id" value="{{ product.id }}" />
+              <input type="hidden" name="product_quantity" value="1" />
+              <button type="submit" class="btn btn-small btn-primary">Add to cart</button>
+            </form>
+          </div>
+        </div>
+      </article>
+      {% empty %}
+      {% for product in products %}
+      <article class="product-card">
+        <div class="product-media">
+          <img src="{{ product.image.url }}" alt="{{ product.name }}" onerror="this.onerror=null;this.src='{% static 'myapp/product-placeholder.svg' %}';" />
+          <button class="wishlist-btn" type="button" aria-label="Add to wishlist">♡</button>
+        </div>
+
+        <div class="product-body">
+          <span class="product-tag">Featured</span>
+          <h3>{{ product.name }}</h3>
+          <div class="product-meta">
+            <span class="stars">★★★★★</span>
+            <span>4.9</span>
+          </div>
+          <div class="product-footer">
+            <span class="price">₹{{ product.price }}</span>
+            <form class="add-to-cart-form" action="{% url 'cart:cart_add' %}" method="post">
+              {% csrf_token %}
+              <input type="hidden" name="product_id" value="{{ product.id }}" />
+              <input type="hidden" name="product_quantity" value="1" />
+              <button type="submit" class="btn btn-small btn-primary">Add to cart</button>
+            </form>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+      {% endfor %}
+    </div>
+    <p class="cart-feedback" role="status" aria-live="polite"></p>
+  </div>
+</section>
+
+<section class="feature-banner">
+  <div class="container feature-inner">
+    <div>
+      <span class="eyebrow">Limited edition</span>
+      <h2>Own the statement piece built for modern collectors.</h2>
+    </div>
+    <a href="#" class="btn btn-primary">Discover more</a>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.querySelectorAll('.add-to-cart-form').forEach(function (form) {
+    form.addEventListener('submit', async function (event) {
+      event.preventDefault();
+      const button = form.querySelector('button[type="submit"]');
+      const feedback = document.querySelector('.cart-feedback');
+      button.disabled = true;
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Could not add this item.');
+        document.querySelector('.cart-badge').textContent = result.cart_quantity;
+        feedback.textContent = 'Added to your cart.';
+      } catch (error) {
+        feedback.textContent = error.message;
+      } finally {
+        button.disabled = false;
+      }
+    });
+  });
+</script>
 {% endblock %}

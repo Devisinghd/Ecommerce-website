@@ -11,11 +11,11 @@ router.register(r'order-items', views.OrderItemViewSet, basename='orderitem')
 router.register(r'addresses', views.AddressViewSet, basename='address')
 
 urlpatterns = [
-    path('',views.index,name='index'),
-    path('<slug:slug>',views.detail,name='detail'),
+    path('', views.index, name='index'),
+    path('product/<slug:slug>/', views.detail, name='detail'),
 
     #API url patterns
-    path("api/",include(router.urls)),
-    path("api/token",TokenObtainPairView.as_view()),
-    path("api/token/refresh",TokenRefreshView.as_view()),
+    path('api/', include(router.urls)),
+    path('api/token/', TokenObtainPairView.as_view()),
+    path('api/token/refresh/', TokenRefreshView.as_view()),
 ]

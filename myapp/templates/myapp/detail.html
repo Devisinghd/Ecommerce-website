@@ -6,9 +6,9 @@
     <div class="panel detail-media">
       {% load static %}
       {% if product.image %}
-        <img src="{{ product.image.url }}" alt="{{ product.name }}" onerror="this.onerror=null;this.src='https://via.placeholder.com/900x600?text=No+Image';" />
+        <img src="{{ product.image.url }}" alt="{{ product.name }}" onerror="this.onerror=null;this.src='{% static 'myapp/product-placeholder.svg' %}';" />
       {% else %}
-        <img src="https://via.placeholder.com/900x600?text=No+Image" alt="No image available" />
+        <img src="{% static 'myapp/product-placeholder.svg' %}" alt="No product image available" />
       {% endif %}
     </div>
     <div class="panel detail-panel">
@@ -20,21 +20,26 @@
         <div class="stat-row"><span>Shipping</span><span>Free delivery</span></div>
         <div class="stat-row"><span>Seller</span><span>Verified merchant</span></div>
       </div>
-      <div class="field" style="margin-top:20px;">
-        <label for="select">Quantity</label>
-        <select id="select" name="quantity">
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-        </select>
-      </div>
       <div class="form-actions">
-        <button id="atc" value="{{ product.id }}" class="btn-primary">Add to cart</button>
+        <form id="add-to-cart-form" action="{% url 'cart:cart_add' %}" method="post">
+          {% csrf_token %}
+          <input type="hidden" name="product_id" value="{{ product.id }}" />
+          <div class="field" style="margin-top:20px;">
+            <label for="select">Quantity</label>
+            <select id="select" name="product_quantity">
+              {% for quantity in "123456789" %}
+                <option value="{{ forloop.counter }}">{{ forloop.counter }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn-primary">Add to cart</button>
+        </form>
         <form action="{% url 'checkout' %}" method="get">
           <input type="hidden" name="product_id" value="{{ product.id }}" />
           <input type="hidden" name="quantity" id="buy-now-quantity" value="1" />
-          <button type="submit" class="btn-outline" style="width:100%;">Buy now</button>
+          <button type="submit" class="btn btn-secondary" style="width:100%;">Buy now</button>
         </form>
+        <p id="cart-feedback" class="cart-feedback" role="status" aria-live="polite"></p>
       </div>
     </div>
   </div>
@@ -42,25 +47,27 @@
 {% endblock %}
 {% block scripts %}
 <script>
-    $('#select').on('change', function() {
-        $('#buy-now-quantity').val($(this).val());
+  const quantitySelect = document.getElementById('select');
+  quantitySelect.addEventListener('change', function() {
+    document.getElementById('buy-now-quantity').value = this.value;
     });
 
-    $(document).on('click','#atc',function(e){
-        e.preventDefault();
-        const csrftoken = '{{ csrf_token }}';
-        $.ajax({
-            type: 'POST',
-            url: '{% url "cart:cart_add" %}',
-            data: {
-                csrfmiddlewaretoken: csrftoken,
-                product_id: $(this).val(),
-                product_quantity: $('#select').val(),
-            },
-            success: function(json) {
-                document.getElementById('cart-qty').textContent = json.cart_quantity;
-            }
+  document.getElementById('add-to-cart-form').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    const feedback = document.getElementById('cart-feedback');
+    try {
+      const response = await fetch(this.action, {
+        method: 'POST',
+        body: new FormData(this),
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Could not add this item.');
+      document.querySelector('.cart-badge').textContent = result.cart_quantity;
+      feedback.textContent = 'Added to your cart.';
+    } catch (error) {
+      feedback.textContent = error.message;
+    }
         });
-    });
 </script>
 {% endblock %}
