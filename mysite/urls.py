@@ -21,11 +21,11 @@ from django.conf import settings
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('myapp.urls')),
     path('cart/', include('cart.urls')),
     path('users/', include('users.urls')),
-    path('orders/',include('orders.urls')),
-    path('seller/',include('seller.urls')),
+    path('orders/', include('orders.urls')),
+    path('seller/', include('seller.urls')),
+    path('', include('myapp.urls')),
 ]
 urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
 

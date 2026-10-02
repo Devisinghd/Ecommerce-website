@@ -11,8 +11,13 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-from dotenv import load_dotenv
 import os
+
+try:
+    from dotenv import load_dotenv
+except ModuleNotFoundError:
+    def load_dotenv(*args, **kwargs):
+        return False
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -32,8 +37,9 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', os.getenv('SECRET_KEY', 'django-inse
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1', 'yes')
 
-allowed_hosts_value = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1')
-ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_value.split(',') if host.strip()] or ['localhost', '127.0.0.1']
+default_hosts = ['localhost', '127.0.0.1', 'testserver', '.onrender.com']
+allowed_hosts_value = os.getenv('ALLOWED_HOSTS', ','.join(default_hosts))
+ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_value.split(',') if host.strip()] or default_hosts
 
 
 # Application definition
@@ -192,11 +198,12 @@ CACHES = {
 
 LOG_LEVEL = "DEBUG" if DEBUG else "WARNING"
 
+SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'False').lower() in ('true', '1', 'yes')
+
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-    SECURE_SSL_REDIRECT = True
 
 LOGGING = {
     "version": 1,
