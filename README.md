@@ -59,7 +59,11 @@ This project demonstrates a complete backend architecture for an online store, i
 
 ## Demo
 
-The configured [deployment](https://ecommerce-website-coral-gamma.vercel.app/) returned an HTTP 500 error when checked on October 7, 2026. Use the local setup below until the hosted demo is available again.
+Visit the [live ShopFusion storefront](https://ecommerce-website-z90m.onrender.com/).
+
+### Storefront screenshot
+
+![ShopFusion storefront homepage](./screenshots/storefront-home.png)
 
 ## Local Setup
 
