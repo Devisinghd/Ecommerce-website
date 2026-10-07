@@ -164,10 +164,6 @@ Please review our community expectations in [CODE_OF_CONDUCT.md](./CODE_OF_CONDU
 
 This project is licensed under the [MIT License](./LICENSE).
 
-## Resume-Friendly Summary
-
-This project is a Django-based e-commerce backend with secure JWT authentication, product management, cart workflows, checkout and order handling, address tracking, and API documentation. It combines backend architecture, deployment readiness, and real-world business logic in a practical full-stack portfolio project.
-
 ## Author
 
 Developed by Devisingh Dangi.
